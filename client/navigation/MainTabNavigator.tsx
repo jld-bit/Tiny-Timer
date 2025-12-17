@@ -7,10 +7,12 @@ import { useTheme } from "@/hooks/useTheme";
 import { Colors, Spacing } from "@/constants/theme";
 import TimersScreen from "@/screens/TimersScreen";
 import HistoryScreen from "@/screens/HistoryScreen";
+import BadgesScreen from "@/screens/BadgesScreen";
 
 export type MainTabParamList = {
   TimersTab: undefined;
   AddTimerTab: undefined;
+  BadgesTab: undefined;
   HistoryTab: undefined;
 };
 
@@ -82,6 +84,16 @@ export default function MainTabNavigator() {
             navigation.navigate("AddTimerModal");
           },
         })}
+      />
+      <Tab.Screen
+        name="BadgesTab"
+        component={BadgesScreen}
+        options={{
+          title: "Badges",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="award" size={size} color={color} />
+          ),
+        }}
       />
       <Tab.Screen
         name="HistoryTab"

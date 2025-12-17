@@ -9,11 +9,14 @@ export type ActivityType =
   | "reading"
   | "custom";
 
+export type ThemeType = "default" | "animals" | "space" | "underwater";
+
 export interface Activity {
   id: ActivityType;
   name: string;
   defaultMinutes: number;
   icon: string;
+  isCustom?: boolean;
 }
 
 export interface Timer {
@@ -36,9 +39,34 @@ export interface HistoryEntry {
   completedAt: number;
 }
 
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  earnedAt?: number;
+  requirement: {
+    type: "total_timers" | "streak" | "activity_count" | "total_minutes";
+    count: number;
+    activityId?: ActivityType;
+  };
+}
+
 export interface AppSettings {
   soundEnabled: boolean;
   hapticsEnabled: boolean;
+  selectedTheme: ThemeType;
+}
+
+export interface UserProgress {
+  totalTimersCompleted: number;
+  totalMinutesCompleted: number;
+  currentStreak: number;
+  longestStreak: number;
+  lastCompletedDate?: string;
+  activityCounts: Record<string, number>;
+  earnedBadges: string[];
 }
 
 export const ACTIVITIES: Activity[] = [
@@ -54,4 +82,126 @@ export const ACTIVITIES: Activity[] = [
 
 export const getActivityById = (id: ActivityType): Activity | undefined => {
   return ACTIVITIES.find((a) => a.id === id);
+};
+
+export const BADGES: Badge[] = [
+  {
+    id: "first_timer",
+    name: "First Timer",
+    description: "Complete your first timer",
+    icon: "award",
+    color: "#FFD93D",
+    requirement: { type: "total_timers", count: 1 },
+  },
+  {
+    id: "timer_champion",
+    name: "Timer Champion",
+    description: "Complete 10 timers",
+    icon: "award",
+    color: "#4ECDC4",
+    requirement: { type: "total_timers", count: 10 },
+  },
+  {
+    id: "timer_master",
+    name: "Timer Master",
+    description: "Complete 50 timers",
+    icon: "star",
+    color: "#FF6B6B",
+    requirement: { type: "total_timers", count: 50 },
+  },
+  {
+    id: "homework_hero",
+    name: "Homework Hero",
+    description: "Complete 5 homework timers",
+    icon: "book",
+    color: "#FF6B6B",
+    requirement: { type: "activity_count", count: 5, activityId: "homework" },
+  },
+  {
+    id: "clean_machine",
+    name: "Clean Machine",
+    description: "Complete 5 cleanup timers",
+    icon: "trash-2",
+    color: "#FF9F43",
+    requirement: { type: "activity_count", count: 5, activityId: "cleanup" },
+  },
+  {
+    id: "bookworm",
+    name: "Bookworm",
+    description: "Complete 5 reading timers",
+    icon: "book-open",
+    color: "#4ECDC4",
+    requirement: { type: "activity_count", count: 5, activityId: "reading" },
+  },
+  {
+    id: "streak_starter",
+    name: "Streak Starter",
+    description: "Complete timers 3 days in a row",
+    icon: "zap",
+    color: "#FFD93D",
+    requirement: { type: "streak", count: 3 },
+  },
+  {
+    id: "week_warrior",
+    name: "Week Warrior",
+    description: "Complete timers 7 days in a row",
+    icon: "zap",
+    color: "#7C83FD",
+    requirement: { type: "streak", count: 7 },
+  },
+  {
+    id: "hour_hero",
+    name: "Hour Hero",
+    description: "Complete 60 minutes of timers",
+    icon: "clock",
+    color: "#95E1D3",
+    requirement: { type: "total_minutes", count: 60 },
+  },
+  {
+    id: "time_titan",
+    name: "Time Titan",
+    description: "Complete 300 minutes of timers",
+    icon: "clock",
+    color: "#FF6B6B",
+    requirement: { type: "total_minutes", count: 300 },
+  },
+];
+
+export const THEMES: Record<ThemeType, { name: string; colors: { primary: string; secondary: string; accent: string; background: string } }> = {
+  default: {
+    name: "Classic",
+    colors: {
+      primary: "#FF6B6B",
+      secondary: "#4ECDC4",
+      accent: "#FFD93D",
+      background: "#FFF9F0",
+    },
+  },
+  animals: {
+    name: "Safari",
+    colors: {
+      primary: "#8B4513",
+      secondary: "#228B22",
+      accent: "#FFD700",
+      background: "#FFF8DC",
+    },
+  },
+  space: {
+    name: "Space",
+    colors: {
+      primary: "#9B59B6",
+      secondary: "#3498DB",
+      accent: "#F39C12",
+      background: "#1A1A2E",
+    },
+  },
+  underwater: {
+    name: "Ocean",
+    colors: {
+      primary: "#00CED1",
+      secondary: "#20B2AA",
+      accent: "#FF7F50",
+      background: "#E0FFFF",
+    },
+  },
 };
