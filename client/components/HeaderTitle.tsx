@@ -1,14 +1,9 @@
 import React from "react";
 import { View, StyleSheet, Image } from "react-native";
-
 import { ThemedText } from "@/components/ThemedText";
-import { Spacing } from "@/constants/theme";
+import { Spacing, Colors } from "@/constants/theme";
 
-interface HeaderTitleProps {
-  title: string;
-}
-
-export function HeaderTitle({ title }: HeaderTitleProps) {
+export function HeaderTitle() {
   return (
     <View style={styles.container}>
       <Image
@@ -16,7 +11,7 @@ export function HeaderTitle({ title }: HeaderTitleProps) {
         style={styles.icon}
         resizeMode="contain"
       />
-      <ThemedText style={styles.title}>{title}</ThemedText>
+      <ThemedText style={styles.title}>Kids Timer</ThemedText>
     </View>
   );
 }
@@ -31,9 +26,11 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     marginRight: Spacing.sm,
+    borderRadius: 6,
   },
   title: {
     fontSize: 17,
     fontWeight: "600",
+    color: Colors.light.text,
   },
 });

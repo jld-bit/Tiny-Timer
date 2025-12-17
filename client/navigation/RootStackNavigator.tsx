@@ -1,12 +1,16 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MainTabNavigator from "@/navigation/MainTabNavigator";
-import ModalScreen from "@/screens/ModalScreen";
+import AddTimerScreen from "@/screens/AddTimerScreen";
+import TimerDetailScreen from "@/screens/TimerDetailScreen";
+import SettingsScreen from "@/screens/SettingsScreen";
 import { useScreenOptions } from "@/hooks/useScreenOptions";
 
 export type RootStackParamList = {
   Main: undefined;
-  Modal: undefined;
+  AddTimerModal: undefined;
+  TimerDetail: { timerId: string };
+  Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -22,11 +26,26 @@ export default function RootStackNavigator() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="Modal"
-        component={ModalScreen}
+        name="AddTimerModal"
+        component={AddTimerScreen}
         options={{
           presentation: "modal",
-          headerTitle: "Modal",
+          headerTitle: "New Timer",
+        }}
+      />
+      <Stack.Screen
+        name="TimerDetail"
+        component={TimerDetailScreen}
+        options={{
+          headerTitle: "",
+          headerTransparent: true,
+        }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          headerTitle: "Settings",
         }}
       />
     </Stack.Navigator>
