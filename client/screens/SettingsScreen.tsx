@@ -107,7 +107,7 @@ function ThemeCard({
         type="caption"
         style={[
           styles.themeName,
-          { color: themeKey === "space" ? "#FFFFFF" : theme.textDefault },
+          { color: themeKey === "space" ? "#FFFFFF" : theme.text },
         ]}
       >
         {themeConfig.name}
@@ -154,7 +154,7 @@ function SoundToneCard({
       <View style={[styles.soundIconContainer, { backgroundColor: isSelected ? Colors.light.primary : theme.backgroundTertiary }]}>
         <Feather name={tone.icon as any} size={16} color={isSelected ? "#FFFFFF" : theme.textSecondary} />
       </View>
-      <ThemedText type="caption" style={{ color: isSelected ? Colors.light.primary : theme.textDefault }}>
+      <ThemedText type="caption" style={{ color: isSelected ? Colors.light.primary : theme.text }}>
         {tone.name}
       </ThemedText>
       {isSelected ? (
