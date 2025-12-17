@@ -1,5 +1,7 @@
 import React from "react";
 import { StyleSheet, ScrollView, View, Switch, Pressable, Platform } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
@@ -9,6 +11,9 @@ import { useTimers } from "@/lib/timerContext";
 import { storage } from "@/lib/storage";
 import { Spacing, Colors, BorderRadius } from "@/constants/theme";
 import { THEMES, ThemeType } from "@/lib/types";
+import { RootStackParamList } from "@/navigation/RootStackNavigator";
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 function SettingRow({
   icon,
@@ -116,9 +121,10 @@ function ThemeCard({
 }
 
 export default function SettingsScreen() {
+  const navigation = useNavigation<NavigationProp>();
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings, updateSettings } = useTimers();
+  const { settings, updateSettings, customActivities } = useTimers();
 
   const handleClearHistory = async () => {
     await storage.saveHistory([]);
@@ -141,6 +147,21 @@ export default function SettingsScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.section}>
+          <ThemedText type="caption" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+            PARENT CONTROLS
+          </ThemedText>
+          <View style={styles.sectionContent}>
+            <SettingRow
+              icon="users"
+              title="Parent Dashboard"
+              subtitle={`Manage custom activities (${customActivities.length} created)`}
+              type="button"
+              onPress={() => navigation.navigate("ParentDashboard")}
+            />
+          </View>
+        </View>
+
         <View style={styles.section}>
           <ThemedText type="caption" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
             PREFERENCES

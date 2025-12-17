@@ -4,6 +4,7 @@ import MainTabNavigator from "@/navigation/MainTabNavigator";
 import AddTimerScreen from "@/screens/AddTimerScreen";
 import TimerDetailScreen from "@/screens/TimerDetailScreen";
 import SettingsScreen from "@/screens/SettingsScreen";
+import ParentDashboardScreen from "@/screens/ParentDashboardScreen";
 import { useScreenOptions } from "@/hooks/useScreenOptions";
 
 export type RootStackParamList = {
@@ -11,6 +12,7 @@ export type RootStackParamList = {
   AddTimerModal: undefined;
   TimerDetail: { timerId: string };
   Settings: undefined;
+  ParentDashboard: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -46,6 +48,13 @@ export default function RootStackNavigator() {
         component={SettingsScreen}
         options={{
           headerTitle: "Settings",
+        }}
+      />
+      <Stack.Screen
+        name="ParentDashboard"
+        component={ParentDashboardScreen}
+        options={{
+          headerTitle: "Parent Dashboard",
         }}
       />
     </Stack.Navigator>

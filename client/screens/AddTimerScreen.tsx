@@ -143,8 +143,10 @@ export default function AddTimerScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
-  const { addTimer } = useTimers();
+  const { addTimer, customActivities } = useTimers();
 
+  const allActivities = [...ACTIVITIES, ...customActivities];
+  
   const [selectedActivity, setSelectedActivity] = useState<Activity>(ACTIVITIES[0]);
   const [selectedMinutes, setSelectedMinutes] = useState<number>(
     ACTIVITIES[0].defaultMinutes
@@ -168,7 +170,8 @@ export default function AddTimerScreen() {
   };
 
   const handleStartTimer = () => {
-    addTimer(selectedActivity.id as ActivityType, selectedMinutes);
+    const customName = selectedActivity.isCustom ? selectedActivity.name : undefined;
+    addTimer(selectedActivity.id as ActivityType, selectedMinutes, customName);
     navigation.goBack();
   };
 
@@ -187,7 +190,7 @@ export default function AddTimerScreen() {
             Choose Activity
           </ThemedText>
           <View style={styles.activitiesGrid}>
-            {ACTIVITIES.map((activity) => (
+            {allActivities.map((activity) => (
               <ActivityOption
                 key={activity.id}
                 activity={activity}
