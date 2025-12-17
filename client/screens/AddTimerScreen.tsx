@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, ScrollView, View, Pressable, Platform } from "react-native";
+import { StyleSheet, ScrollView, View, Pressable, Platform, TextInput } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,6 +7,7 @@ import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { Button } from "@/components/Button";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useTheme } from "@/hooks/useTheme";
 import { useTimers } from "@/lib/timerContext";
 import { ACTIVITIES, Activity, ActivityType } from "@/lib/types";
@@ -151,6 +152,7 @@ export default function AddTimerScreen() {
   const [selectedMinutes, setSelectedMinutes] = useState<number>(
     ACTIVITIES[0].defaultMinutes
   );
+  const [customTimerName, setCustomTimerName] = useState("");
   
   const selectedActivityColor = ActivityColors[selectedActivity.id] || Colors.light.primary;
 
@@ -170,14 +172,14 @@ export default function AddTimerScreen() {
   };
 
   const handleStartTimer = () => {
-    const customName = selectedActivity.isCustom ? selectedActivity.name : undefined;
+    const customName = customTimerName.trim() || (selectedActivity.isCustom ? selectedActivity.name : undefined);
     addTimer(selectedActivity.id as ActivityType, selectedMinutes, customName);
     navigation.goBack();
   };
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView
+      <KeyboardAwareScrollViewCompat
         style={styles.scrollView}
         contentContainerStyle={[
           styles.content,
@@ -217,7 +219,28 @@ export default function AddTimerScreen() {
             ))}
           </View>
         </View>
-      </ScrollView>
+
+        <View style={styles.section}>
+          <ThemedText type="h3" style={styles.sectionTitle}>
+            Timer Name (optional)
+          </ThemedText>
+          <TextInput
+            style={[
+              styles.nameInput,
+              {
+                backgroundColor: theme.backgroundDefault,
+                color: theme.text,
+                borderColor: theme.border,
+              },
+            ]}
+            value={customTimerName}
+            onChangeText={setCustomTimerName}
+            placeholder={`e.g., Math homework, Piano practice`}
+            placeholderTextColor={theme.textSecondary}
+            maxLength={40}
+          />
+        </View>
+      </KeyboardAwareScrollViewCompat>
 
       <View
         style={[
@@ -287,6 +310,13 @@ const styles = StyleSheet.create({
   },
   minuteLabel: {
     textAlign: "center",
+  },
+  nameInput: {
+    fontSize: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
   },
   footer: {
     position: "absolute",

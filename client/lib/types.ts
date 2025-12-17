@@ -7,6 +7,10 @@ export type ActivityType =
   | "cleanup"
   | "snack_time"
   | "reading"
+  | "exercise"
+  | "music"
+  | "art"
+  | "quiet_time"
   | "custom";
 
 export type ThemeType = "default" | "animals" | "space" | "underwater";
@@ -79,6 +83,10 @@ export const ACTIVITIES: Activity[] = [
   { id: "cleanup", name: "Cleanup", defaultMinutes: 10, icon: "trash-2" },
   { id: "snack_time", name: "Snack Time", defaultMinutes: 15, icon: "coffee" },
   { id: "reading", name: "Reading", defaultMinutes: 20, icon: "book-open" },
+  { id: "exercise", name: "Exercise", defaultMinutes: 20, icon: "activity" },
+  { id: "music", name: "Music", defaultMinutes: 30, icon: "music" },
+  { id: "art", name: "Art Time", defaultMinutes: 30, icon: "edit-3" },
+  { id: "quiet_time", name: "Quiet Time", defaultMinutes: 15, icon: "volume-x" },
 ];
 
 export const getActivityById = (id: ActivityType): Activity | undefined => {

@@ -142,5 +142,9 @@ export const ActivityColors: Record<string, string> = {
   cleanup: "#FF9F43",
   snack_time: "#F8B500",
   reading: "#4ECDC4",
+  exercise: "#FF6B9D",
+  music: "#9B59B6",
+  art: "#E74C3C",
+  quiet_time: "#3498DB",
   custom: "#B8B8B8",
 };
