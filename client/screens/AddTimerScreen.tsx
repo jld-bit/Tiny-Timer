@@ -252,7 +252,7 @@ export default function AddTimerScreen() {
         ]}
       >
         <Button onPress={handleStartTimer} style={[styles.startButton, { backgroundColor: selectedActivityColor }]}>
-          Start {selectedActivity.name} Timer
+          {customTimerName.trim() ? "Start Timer" : `Start ${selectedActivity.name} Timer`}
         </Button>
       </View>
     </ThemedView>

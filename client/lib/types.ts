@@ -15,6 +15,37 @@ export type ActivityType =
 
 export type ThemeType = "default" | "animals" | "space" | "underwater";
 
+export type SoundToneId = 
+  | "chime"
+  | "bell"
+  | "xylophone"
+  | "whistle"
+  | "celebration"
+  | "gentle"
+  | "playful"
+  | "magic"
+  | "drumroll"
+  | "fanfare";
+
+export interface SoundTone {
+  id: SoundToneId;
+  name: string;
+  icon: string;
+}
+
+export const SOUND_TONES: SoundTone[] = [
+  { id: "chime", name: "Chime", icon: "bell" },
+  { id: "bell", name: "Bell", icon: "volume-2" },
+  { id: "xylophone", name: "Xylophone", icon: "music" },
+  { id: "whistle", name: "Whistle", icon: "wind" },
+  { id: "celebration", name: "Celebration", icon: "gift" },
+  { id: "gentle", name: "Gentle", icon: "feather" },
+  { id: "playful", name: "Playful", icon: "smile" },
+  { id: "magic", name: "Magic", icon: "star" },
+  { id: "drumroll", name: "Drumroll", icon: "target" },
+  { id: "fanfare", name: "Fanfare", icon: "award" },
+];
+
 export interface Activity {
   id: ActivityType;
   name: string;
@@ -62,6 +93,7 @@ export interface AppSettings {
   soundEnabled: boolean;
   hapticsEnabled: boolean;
   selectedTheme: ThemeType;
+  selectedSoundId: SoundToneId;
 }
 
 export interface UserProgress {

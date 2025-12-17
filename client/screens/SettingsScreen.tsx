@@ -10,7 +10,8 @@ import { useTheme } from "@/hooks/useTheme";
 import { useTimers } from "@/lib/timerContext";
 import { storage } from "@/lib/storage";
 import { Spacing, Colors, BorderRadius } from "@/constants/theme";
-import { THEMES, ThemeType } from "@/lib/types";
+import { THEMES, ThemeType, SOUND_TONES, SoundToneId } from "@/lib/types";
+import { previewSound } from "@/lib/sounds";
 import { RootStackParamList } from "@/navigation/RootStackNavigator";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -120,6 +121,49 @@ function ThemeCard({
   );
 }
 
+function SoundToneCard({
+  toneId,
+  isSelected,
+  onSelect,
+}: {
+  toneId: SoundToneId;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  const { theme } = useTheme();
+  const tone = SOUND_TONES.find((t) => t.id === toneId);
+  if (!tone) return null;
+
+  const handlePress = () => {
+    onSelect();
+    previewSound(toneId);
+  };
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      style={({ pressed }) => [
+        styles.soundToneCard,
+        {
+          backgroundColor: isSelected ? Colors.light.primary + "15" : theme.backgroundDefault,
+          borderColor: isSelected ? Colors.light.primary : theme.border,
+          opacity: pressed ? 0.8 : 1,
+        },
+      ]}
+    >
+      <View style={[styles.soundIconContainer, { backgroundColor: isSelected ? Colors.light.primary : theme.backgroundTertiary }]}>
+        <Feather name={tone.icon as any} size={16} color={isSelected ? "#FFFFFF" : theme.textSecondary} />
+      </View>
+      <ThemedText type="caption" style={{ color: isSelected ? Colors.light.primary : theme.textDefault }}>
+        {tone.name}
+      </ThemedText>
+      {isSelected ? (
+        <Feather name="check" size={14} color={Colors.light.primary} />
+      ) : null}
+    </Pressable>
+  );
+}
+
 export default function SettingsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { theme } = useTheme();
@@ -185,6 +229,24 @@ export default function SettingsScreen() {
             ) : null}
           </View>
         </View>
+
+        {settings.soundEnabled ? (
+          <View style={styles.section}>
+            <ThemedText type="caption" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+              TIMER SOUND
+            </ThemedText>
+            <View style={styles.soundTonesGrid}>
+              {SOUND_TONES.map((tone) => (
+                <SoundToneCard
+                  key={tone.id}
+                  toneId={tone.id}
+                  isSelected={settings.selectedSoundId === tone.id}
+                  onSelect={() => updateSettings({ selectedSoundId: tone.id })}
+                />
+              ))}
+            </View>
+          </View>
+        ) : null}
 
         <View style={styles.section}>
           <ThemedText type="caption" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
@@ -320,6 +382,27 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  soundTonesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.sm,
+  },
+  soundToneCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    gap: Spacing.xs,
+  },
+  soundIconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
   },

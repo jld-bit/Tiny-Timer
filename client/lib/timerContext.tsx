@@ -3,6 +3,7 @@ import { AppState, AppStateStatus, Platform } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Timer, HistoryEntry, AppSettings, ActivityType, getActivityById, UserProgress, BADGES, Activity } from "./types";
 import { storage } from "./storage";
+import { playCompletionSound } from "./sounds";
 
 interface TimerContextType {
   timers: Timer[];
@@ -34,7 +35,7 @@ const defaultProgress: UserProgress = {
 
 export function TimerProvider({ children }: { children: React.ReactNode }) {
   const [timers, setTimers] = useState<Timer[]>([]);
-  const [settings, setSettings] = useState<AppSettings>({ soundEnabled: true, hapticsEnabled: true, selectedTheme: "default" });
+  const [settings, setSettings] = useState<AppSettings>({ soundEnabled: true, hapticsEnabled: true, selectedTheme: "default", selectedSoundId: "chime" });
   const [progress, setProgress] = useState<UserProgress>(defaultProgress);
   const [customActivities, setCustomActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -138,6 +139,10 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   const handleTimerComplete = async (timer: Timer) => {
     if (settings.hapticsEnabled && Platform.OS !== "web") {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+
+    if (settings.soundEnabled) {
+      playCompletionSound(settings.selectedSoundId);
     }
 
     const historyEntry: HistoryEntry = {

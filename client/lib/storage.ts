@@ -11,6 +11,7 @@ const defaultSettings: AppSettings = {
   soundEnabled: true,
   hapticsEnabled: true,
   selectedTheme: "default",
+  selectedSoundId: "chime",
 };
 
 const defaultProgress: UserProgress = {
