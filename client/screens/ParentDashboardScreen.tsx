@@ -123,6 +123,11 @@ function CustomActivityCard({
       </View>
       <View style={styles.activityInfo}>
         <ThemedText type="bodyMedium">{activity.name}</ThemedText>
+        {activity.label ? (
+          <ThemedText type="caption" style={{ color: Colors.light.primary }}>
+            {activity.label}
+          </ThemedText>
+        ) : null}
         <ThemedText type="caption" style={{ color: theme.textSecondary }}>
           Default: {activity.defaultMinutes} min
         </ThemedText>
@@ -147,6 +152,7 @@ export default function ParentDashboardScreen() {
   const { customActivities, addCustomActivity, removeCustomActivity } = useTimers();
 
   const [activityName, setActivityName] = useState("");
+  const [activityLabel, setActivityLabel] = useState("");
   const [selectedIcon, setSelectedIcon] = useState(AVAILABLE_ICONS[0]);
   const [selectedDuration, setSelectedDuration] = useState(15);
   const [showForm, setShowForm] = useState(false);
@@ -167,10 +173,12 @@ export default function ParentDashboardScreen() {
       icon: selectedIcon,
       defaultMinutes: selectedDuration,
       isCustom: true,
+      label: activityLabel.trim() || undefined,
     };
 
     addCustomActivity(newActivity);
     setActivityName("");
+    setActivityLabel("");
     setSelectedIcon(AVAILABLE_ICONS[0]);
     setSelectedDuration(15);
     setShowForm(false);
@@ -264,6 +272,27 @@ export default function ParentDashboardScreen() {
                 placeholder="e.g., Piano Practice"
                 placeholderTextColor={theme.textSecondary}
                 maxLength={30}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <ThemedText type="bodyMedium" style={styles.inputLabel}>
+                Custom Label (optional)
+              </ThemedText>
+              <TextInput
+                style={[
+                  styles.textInput,
+                  {
+                    backgroundColor: theme.backgroundSecondary,
+                    color: theme.text,
+                    borderColor: theme.border,
+                  },
+                ]}
+                value={activityLabel}
+                onChangeText={setActivityLabel}
+                placeholder="e.g., For weekdays only"
+                placeholderTextColor={theme.textSecondary}
+                maxLength={40}
               />
             </View>
 

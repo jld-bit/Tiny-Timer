@@ -17,6 +17,7 @@ export interface Activity {
   defaultMinutes: number;
   icon: string;
   isCustom?: boolean;
+  label?: string;
 }
 
 export interface Timer {
