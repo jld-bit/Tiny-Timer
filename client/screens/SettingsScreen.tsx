@@ -8,6 +8,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useTimers } from "@/lib/timerContext";
 import { storage } from "@/lib/storage";
 import { Spacing, Colors, BorderRadius } from "@/constants/theme";
+import { THEMES, ThemeType } from "@/lib/types";
 
 function SettingRow({
   icon,
@@ -66,6 +67,54 @@ function SettingRow({
   return content;
 }
 
+function ThemeCard({
+  themeKey,
+  isSelected,
+  onSelect,
+}: {
+  themeKey: ThemeType;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  const { theme } = useTheme();
+  const themeConfig = THEMES[themeKey];
+
+  return (
+    <Pressable
+      onPress={onSelect}
+      style={({ pressed }) => [
+        styles.themeCard,
+        {
+          backgroundColor: themeConfig.colors.background,
+          borderColor: isSelected ? themeConfig.colors.primary : "transparent",
+          borderWidth: 3,
+          opacity: pressed ? 0.8 : 1,
+        },
+      ]}
+    >
+      <View style={styles.themeColorRow}>
+        <View style={[styles.themeColorDot, { backgroundColor: themeConfig.colors.primary }]} />
+        <View style={[styles.themeColorDot, { backgroundColor: themeConfig.colors.secondary }]} />
+        <View style={[styles.themeColorDot, { backgroundColor: themeConfig.colors.accent }]} />
+      </View>
+      <ThemedText
+        type="caption"
+        style={[
+          styles.themeName,
+          { color: themeKey === "space" ? "#FFFFFF" : theme.textDefault },
+        ]}
+      >
+        {themeConfig.name}
+      </ThemedText>
+      {isSelected ? (
+        <View style={[styles.checkBadge, { backgroundColor: themeConfig.colors.primary }]}>
+          <Feather name="check" size={12} color="#FFFFFF" />
+        </View>
+      ) : null}
+    </Pressable>
+  );
+}
+
 export default function SettingsScreen() {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
@@ -113,6 +162,22 @@ export default function SettingsScreen() {
                 onValueChange={(value) => updateSettings({ hapticsEnabled: value })}
               />
             ) : null}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <ThemedText type="caption" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+            TIMER THEME
+          </ThemedText>
+          <View style={styles.themeGrid}>
+            {(Object.keys(THEMES) as ThemeType[]).map((themeKey) => (
+              <ThemeCard
+                key={themeKey}
+                themeKey={themeKey}
+                isSelected={settings.selectedTheme === themeKey}
+                onSelect={() => updateSettings({ selectedTheme: themeKey })}
+              />
+            ))}
           </View>
         </View>
 
@@ -201,5 +266,40 @@ const styles = StyleSheet.create({
   settingContent: {
     flex: 1,
     gap: 2,
+  },
+  themeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.md,
+  },
+  themeCard: {
+    width: "47%",
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    alignItems: "center",
+    gap: Spacing.sm,
+  },
+  themeColorRow: {
+    flexDirection: "row",
+    gap: Spacing.sm,
+  },
+  themeColorDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+  },
+  themeName: {
+    fontWeight: "600",
+    marginTop: Spacing.xs,
+  },
+  checkBadge: {
+    position: "absolute",
+    top: Spacing.sm,
+    right: Spacing.sm,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

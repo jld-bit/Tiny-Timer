@@ -82,6 +82,7 @@ export default function TimerDetailScreen() {
 
   const timer = timers.find((t) => t.id === route.params.timerId);
   const celebrationScale = useSharedValue(1);
+  const activityColor = timer ? (ActivityColors[timer.activityId] || Colors.light.primary) : Colors.light.primary;
 
   useEffect(() => {
     if (timer?.remainingSeconds === 0) {
@@ -124,7 +125,6 @@ export default function TimerDetailScreen() {
   }
 
   const progress = timer.remainingSeconds / timer.durationSeconds;
-  const activityColor = ActivityColors[timer.activityId] || Colors.light.primary;
   const isCompleted = timer.remainingSeconds <= 0;
   const isPaused = timer.isPaused;
 
@@ -159,7 +159,7 @@ export default function TimerDetailScreen() {
                 <ThemedText style={styles.completeText}>Complete!</ThemedText>
               </View>
             ) : isPaused ? (
-              <ThemedText type="bodyMedium" style={{ color: Colors.light.accent }}>
+              <ThemedText type="bodyMedium" style={{ color: Colors.light.warning }}>
                 Paused
               </ThemedText>
             ) : (

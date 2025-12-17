@@ -51,6 +51,8 @@ export function TimerCard({ timer, onPress }: TimerCardProps) {
 
   const progress = timer.remainingSeconds / timer.durationSeconds;
   const activityColor = ActivityColors[timer.activityId] || Colors.light.primary;
+  const successColor = Colors.light.success;
+  const pausedColor = Colors.light.warning;
   const isCompleted = timer.remainingSeconds <= 0;
   const isPaused = timer.isPaused;
 
@@ -71,7 +73,7 @@ export function TimerCard({ timer, onPress }: TimerCardProps) {
             progress={progress}
             size={80}
             strokeWidth={8}
-            color={isCompleted ? Colors.light.success : activityColor}
+            color={isCompleted ? successColor : activityColor}
           />
           <View style={styles.timeOverlay}>
             <ThemedText style={[styles.time, { color: theme.text }]}>
@@ -85,16 +87,16 @@ export function TimerCard({ timer, onPress }: TimerCardProps) {
           </ThemedText>
           <View style={styles.statusRow}>
             {isCompleted ? (
-              <View style={[styles.statusBadge, { backgroundColor: Colors.light.success + "20" }]}>
-                <Feather name="check" size={14} color={Colors.light.success} />
-                <ThemedText style={[styles.statusText, { color: Colors.light.success }]}>
+              <View style={[styles.statusBadge, { backgroundColor: successColor + "20" }]}>
+                <Feather name="check" size={14} color={successColor} />
+                <ThemedText style={[styles.statusText, { color: successColor }]}>
                   Complete
                 </ThemedText>
               </View>
             ) : isPaused ? (
-              <View style={[styles.statusBadge, { backgroundColor: Colors.light.accent + "20" }]}>
-                <Feather name="pause" size={14} color={Colors.light.accent} />
-                <ThemedText style={[styles.statusText, { color: Colors.light.accent }]}>
+              <View style={[styles.statusBadge, { backgroundColor: pausedColor + "20" }]}>
+                <Feather name="pause" size={14} color={pausedColor} />
+                <ThemedText style={[styles.statusText, { color: pausedColor }]}>
                   Paused
                 </ThemedText>
               </View>

@@ -90,10 +90,12 @@ function MinuteOption({
   minutes,
   isSelected,
   onPress,
+  selectedActivityColor,
 }: {
   minutes: number;
   isSelected: boolean;
   onPress: () => void;
+  selectedActivityColor: string;
 }) {
   const { theme } = useTheme();
   const scale = useSharedValue(1);
@@ -110,7 +112,7 @@ function MinuteOption({
       style={[
         styles.minuteOption,
         {
-          backgroundColor: isSelected ? Colors.light.primary : theme.backgroundDefault,
+          backgroundColor: isSelected ? selectedActivityColor : theme.backgroundDefault,
         },
         animatedStyle,
       ]}
@@ -147,6 +149,8 @@ export default function AddTimerScreen() {
   const [selectedMinutes, setSelectedMinutes] = useState<number>(
     ACTIVITIES[0].defaultMinutes
   );
+  
+  const selectedActivityColor = ActivityColors[selectedActivity.id] || Colors.light.primary;
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -205,6 +209,7 @@ export default function AddTimerScreen() {
                 minutes={minutes}
                 isSelected={selectedMinutes === minutes}
                 onPress={() => setSelectedMinutes(minutes)}
+                selectedActivityColor={selectedActivityColor}
               />
             ))}
           </View>
@@ -220,7 +225,7 @@ export default function AddTimerScreen() {
           },
         ]}
       >
-        <Button onPress={handleStartTimer} style={styles.startButton}>
+        <Button onPress={handleStartTimer} style={[styles.startButton, { backgroundColor: selectedActivityColor }]}>
           Start {selectedActivity.name} Timer
         </Button>
       </View>
