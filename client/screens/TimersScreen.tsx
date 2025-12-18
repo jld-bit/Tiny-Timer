@@ -51,7 +51,9 @@ export default function TimersScreen() {
     });
   }, [navigation, theme]);
 
-  const activeTimers = timers.filter((t) => t.isRunning || t.remainingSeconds > 0);
+  const activeTimers = timers
+    .filter((t) => t.isRunning || t.remainingSeconds > 0)
+    .sort((a, b) => a.remainingSeconds - b.remainingSeconds);
   const completedTimers = timers.filter((t) => t.remainingSeconds <= 0);
 
   const handleActivityPress = (activity: Activity) => {
