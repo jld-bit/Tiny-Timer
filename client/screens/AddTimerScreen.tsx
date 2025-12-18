@@ -212,23 +212,6 @@ export default function AddTimerScreen() {
 
         <View style={styles.section}>
           <ThemedText type="h3" style={styles.sectionTitle}>
-            Set Duration
-          </ThemedText>
-          <View style={styles.minutesGrid}>
-            {MINUTE_OPTIONS.map((minutes) => (
-              <MinuteOption
-                key={minutes}
-                minutes={minutes}
-                isSelected={selectedMinutes === minutes}
-                onPress={() => setSelectedMinutes(minutes)}
-                selectedActivityColor={selectedActivityColor}
-              />
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <ThemedText type="h3" style={styles.sectionTitle}>
             Timer Name (optional)
           </ThemedText>
           <TextInput
@@ -246,6 +229,23 @@ export default function AddTimerScreen() {
             placeholderTextColor={theme.textSecondary}
             maxLength={40}
           />
+        </View>
+
+        <View style={styles.section}>
+          <ThemedText type="h3" style={styles.sectionTitle}>
+            Set Duration
+          </ThemedText>
+          <View style={styles.minutesGrid}>
+            {MINUTE_OPTIONS.map((minutes) => (
+              <MinuteOption
+                key={minutes}
+                minutes={minutes}
+                isSelected={selectedMinutes === minutes}
+                onPress={() => setSelectedMinutes(minutes)}
+                selectedActivityColor={selectedActivityColor}
+              />
+            ))}
+          </View>
         </View>
 
         <View style={styles.section}>

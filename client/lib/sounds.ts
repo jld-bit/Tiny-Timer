@@ -1,9 +1,7 @@
 import { Platform } from "react-native";
 import * as Haptics from "expo-haptics";
-import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
 import { SoundToneId } from "./types";
-import { getApiUrl } from "./query-client";
 
 const audioContextCache = new Map<string, AudioContext>();
 
@@ -123,46 +121,98 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
   },
 };
 
-const audioFileCache = new Map<SoundToneId, string>();
+function generateWavBase64(toneId: SoundToneId): string {
+  const config = TONE_CONFIGS[toneId];
+  if (!config || config.frequencies.length === 0) return "";
+  
+  const sampleRate = 44100;
+  const totalDuration = config.durations.reduce((a, b) => a + b, 0);
+  const numSamples = Math.floor(sampleRate * totalDuration);
+  
+  const samples = new Int16Array(numSamples);
+  let sampleIndex = 0;
+  
+  for (let i = 0; i < config.frequencies.length; i++) {
+    const freq = config.frequencies[i];
+    const duration = config.durations[i];
+    const noteSamples = Math.floor(sampleRate * duration);
+    
+    for (let j = 0; j < noteSamples && sampleIndex < numSamples; j++) {
+      const t = j / sampleRate;
+      const envelope = Math.min(1, Math.min(t * 20, (duration - t) * 10));
+      
+      let wave: number;
+      const phase = 2 * Math.PI * freq * t;
+      
+      switch (config.type) {
+        case "square":
+          wave = Math.sin(phase) > 0 ? 0.3 : -0.3;
+          break;
+        case "triangle":
+          wave = (2 / Math.PI) * Math.asin(Math.sin(phase)) * 0.5;
+          break;
+        case "sawtooth":
+          wave = ((phase % (2 * Math.PI)) / Math.PI - 1) * 0.3;
+          break;
+        default:
+          wave = Math.sin(phase) * 0.5;
+      }
+      
+      samples[sampleIndex++] = Math.floor(wave * envelope * 32767 * config.volume);
+    }
+  }
+  
+  const dataSize = numSamples * 2;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+  
+  const writeString = (offset: number, str: string) => {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
+  };
+  
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeString(36, "data");
+  view.setUint32(40, dataSize, true);
+  
+  for (let i = 0; i < numSamples; i++) {
+    view.setInt16(44 + i * 2, samples[i], true);
+  }
+  
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
 
-async function ensureAudioCached(toneId: SoundToneId): Promise<string | null> {
+const wavCache = new Map<SoundToneId, string>();
+
+function getWavDataUri(toneId: SoundToneId): string | null {
   if (toneId === "vibrate_only") return null;
   
-  if (audioFileCache.has(toneId)) {
-    const cachedPath = audioFileCache.get(toneId)!;
-    const fileInfo = await FileSystem.getInfoAsync(cachedPath);
-    if (fileInfo.exists) {
-      return cachedPath;
-    }
+  if (wavCache.has(toneId)) {
+    return wavCache.get(toneId)!;
   }
   
-  try {
-    const cacheDir = FileSystem.cacheDirectory;
-    if (!cacheDir) return null;
-    
-    const localPath = `${cacheDir}timer_sound_${toneId}.wav`;
-    const fileInfo = await FileSystem.getInfoAsync(localPath);
-    
-    if (fileInfo.exists) {
-      audioFileCache.set(toneId, localPath);
-      return localPath;
-    }
-    
-    const apiUrl = getApiUrl();
-    const downloadUrl = `${apiUrl}/api/audio/${toneId}`;
-    
-    const downloadResult = await FileSystem.downloadAsync(downloadUrl, localPath);
-    
-    if (downloadResult.status === 200) {
-      audioFileCache.set(toneId, localPath);
-      return localPath;
-    }
-    
-    return null;
-  } catch (error) {
-    console.log("Failed to cache audio file:", error);
-    return null;
-  }
+  const base64 = generateWavBase64(toneId);
+  if (!base64) return null;
+  
+  const dataUri = `data:audio/wav;base64,${base64}`;
+  wavCache.set(toneId, dataUri);
+  return dataUri;
 }
 
 async function playWebTone(toneId: SoundToneId): Promise<void> {
@@ -202,14 +252,20 @@ async function playNativeTone(toneId: SoundToneId): Promise<void> {
   if (toneId === "vibrate_only") return;
   
   try {
-    const audioPath = await ensureAudioCached(toneId);
-    if (!audioPath) {
-      console.log("Audio file not available for tone:", toneId);
+    const dataUri = getWavDataUri(toneId);
+    if (!dataUri) {
+      console.log("Could not generate audio for tone:", toneId);
       return;
     }
     
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+    });
+    
     const { sound } = await Audio.Sound.createAsync(
-      { uri: audioPath },
+      { uri: dataUri },
       { shouldPlay: true, volume: 1.0 }
     );
     
@@ -313,17 +369,12 @@ export async function previewSound(toneId: SoundToneId, hapticsEnabled: boolean 
 }
 
 export async function preloadSounds(): Promise<void> {
-  if (Platform.OS === "web") return;
-  
   const toneIds: SoundToneId[] = [
     "chime", "bell", "xylophone", "whistle", "celebration",
     "gentle", "playful", "magic", "drumroll", "fanfare"
   ];
   
   for (const toneId of toneIds) {
-    try {
-      await ensureAudioCached(toneId);
-    } catch {
-    }
+    getWavDataUri(toneId);
   }
 }
