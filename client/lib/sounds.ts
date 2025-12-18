@@ -234,18 +234,28 @@ async function playNativeTone(toneId: SoundToneId): Promise<void> {
   if (toneId === "vibrate_only") return;
   
   try {
-    const uri = getOrCreateAudioUri(toneId);
-    if (!uri) return;
+    const Speech = await import("expo-speech");
     
-    const ExpoAudio = await import("expo-audio");
-    const player = ExpoAudio.createAudioPlayer({ uri });
-    player.play();
+    const messages: Record<SoundToneId, string> = {
+      vibrate_only: "",
+      chime: "Timer done!",
+      bell: "Ding ding! Time is up!",
+      xylophone: "Time is up!",
+      whistle: "Whee! Timer finished!",
+      celebration: "Yay! Great job!",
+      gentle: "Your timer is complete.",
+      playful: "Woohoo! All done!",
+      magic: "Poof! Timer complete!",
+      drumroll: "And... time!",
+      fanfare: "Ta-da! Well done!",
+    };
     
-    setTimeout(() => {
-      try {
-        player.release();
-      } catch {}
-    }, 3000);
+    const message = messages[toneId] || "Timer complete!";
+    Speech.speak(message, {
+      language: "en-US",
+      pitch: 1.1,
+      rate: 0.9,
+    });
   } catch (error) {
     console.log("Native audio playback failed:", error);
   }
