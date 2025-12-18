@@ -65,6 +65,12 @@ export const storage = {
     await this.saveHistory(trimmed);
   },
 
+  async deleteHistoryEntry(id: string): Promise<void> {
+    const history = await this.getHistory();
+    const filtered = history.filter((entry) => entry.id !== id);
+    await this.saveHistory(filtered);
+  },
+
   async getSettings(): Promise<AppSettings> {
     try {
       const data = await AsyncStorage.getItem(SETTINGS_KEY);

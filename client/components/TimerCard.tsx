@@ -9,13 +9,15 @@ import Animated, {
 import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ProgressRing } from "@/components/ProgressRing";
+import { SwipeableRow } from "@/components/SwipeableRow";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing, BorderRadius, Colors, ActivityColors, Typography } from "@/constants/theme";
+import { Spacing, BorderRadius, Colors, ActivityColors } from "@/constants/theme";
 import { Timer } from "@/lib/types";
 
 interface TimerCardProps {
   timer: Timer;
   onPress: () => void;
+  onSwipeDelete?: () => void;
 }
 
 const springConfig: WithSpringConfig = {
@@ -33,7 +35,7 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-export function TimerCard({ timer, onPress }: TimerCardProps) {
+export function TimerCard({ timer, onPress, onSwipeDelete }: TimerCardProps) {
   const { theme } = useTheme();
   const scale = useSharedValue(1);
 
@@ -52,11 +54,11 @@ export function TimerCard({ timer, onPress }: TimerCardProps) {
   const progress = timer.remainingSeconds / timer.durationSeconds;
   const activityColor = ActivityColors[timer.activityId] || Colors.light.primary;
   const successColor = Colors.light.success;
-  const pausedColor = Colors.light.warning;
+  const pausedColor = Colors.light.accent;
   const isCompleted = timer.remainingSeconds <= 0;
   const isPaused = timer.isPaused;
 
-  return (
+  const cardContent = (
     <AnimatedPressable
       onPress={onPress}
       onPressIn={handlePressIn}
@@ -114,6 +116,21 @@ export function TimerCard({ timer, onPress }: TimerCardProps) {
       </View>
     </AnimatedPressable>
   );
+
+  if (onSwipeDelete) {
+    return (
+      <SwipeableRow
+        onSwipeComplete={onSwipeDelete}
+        actionLabel={isCompleted ? "Delete" : "Cancel"}
+        actionIcon={isCompleted ? "trash-2" : "x"}
+        actionColor={isCompleted ? Colors.light.error : Colors.light.accent}
+      >
+        {cardContent}
+      </SwipeableRow>
+    );
+  }
+
+  return cardContent;
 }
 
 const styles = StyleSheet.create({

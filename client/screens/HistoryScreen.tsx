@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { StyleSheet, ScrollView, View, Pressable } from "react-native";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import { SwipeableRow } from "@/components/SwipeableRow";
 import { useTheme } from "@/hooks/useTheme";
 import { useTimers } from "@/lib/timerContext";
 import { storage } from "@/lib/storage";
@@ -178,11 +179,11 @@ function WeeklyChart({ history }: { history: HistoryEntry[] }) {
   );
 }
 
-function HistoryCard({ entry }: { entry: HistoryEntry }) {
+function HistoryCard({ entry, onDelete }: { entry: HistoryEntry; onDelete: () => void }) {
   const { theme } = useTheme();
   const activityColor = ActivityColors[entry.activityId] || Colors.light.primary;
 
-  return (
+  const cardContent = (
     <View style={[styles.historyCard, { backgroundColor: theme.backgroundDefault }]}>
       <View style={[styles.iconContainer, { backgroundColor: Colors.light.success + "20" }]}>
         <Feather name="check-circle" size={24} color={Colors.light.success} />
@@ -203,6 +204,17 @@ function HistoryCard({ entry }: { entry: HistoryEntry }) {
         <Feather name="star" size={16} color={activityColor} />
       </View>
     </View>
+  );
+
+  return (
+    <SwipeableRow
+      onSwipeComplete={onDelete}
+      actionLabel="Delete"
+      actionIcon="trash-2"
+      actionColor={Colors.light.error}
+    >
+      {cardContent}
+    </SwipeableRow>
   );
 }
 
@@ -269,6 +281,11 @@ export default function HistoryScreen() {
   }, [filteredHistory]);
 
   const maxBreakdownCount = stats.breakdown.length > 0 ? stats.breakdown[0].count : 0;
+
+  const handleDeleteEntry = useCallback(async (id: string) => {
+    await storage.deleteHistoryEntry(id);
+    setHistory((prev) => prev.filter((entry) => entry.id !== id));
+  }, []);
 
   return (
     <ThemedView style={styles.container}>
@@ -395,7 +412,7 @@ export default function HistoryScreen() {
             </ThemedText>
             <View style={styles.historyList}>
               {filteredHistory.slice(0, 10).map((entry) => (
-                <HistoryCard key={entry.id} entry={entry} />
+                <HistoryCard key={entry.id} entry={entry} onDelete={() => handleDeleteEntry(entry.id)} />
               ))}
               {filteredHistory.length > 10 ? (
                 <ThemedText type="caption" style={[styles.moreText, { color: theme.textSecondary }]}>

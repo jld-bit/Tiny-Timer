@@ -35,7 +35,7 @@ export default function TimersScreen() {
   const { theme } = useTheme();
   const headerHeight = useHeaderHeight();
   const tabBarHeight = useBottomTabBarHeight();
-  const { timers, addTimer } = useTimers();
+  const { timers, addTimer, removeTimer } = useTimers();
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -86,6 +86,7 @@ export default function TimersScreen() {
                   key={timer.id}
                   timer={timer}
                   onPress={() => handleTimerPress(timer.id)}
+                  onSwipeDelete={() => removeTimer(timer.id)}
                 />
               ))}
             </View>
@@ -103,6 +104,7 @@ export default function TimersScreen() {
                   key={timer.id}
                   timer={timer}
                   onPress={() => handleTimerPress(timer.id)}
+                  onSwipeDelete={() => removeTimer(timer.id)}
                 />
               ))}
             </View>
