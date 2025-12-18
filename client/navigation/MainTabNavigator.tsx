@@ -72,10 +72,8 @@ export default function MainTabNavigator() {
         component={AddTimerPlaceholder}
         options={{
           title: "Add",
-          tabBarIcon: ({ color }) => (
-            <View style={[styles.addButton, { backgroundColor: Colors.light.primary }]}>
-              <Feather name="plus" size={28} color="#FFFFFF" />
-            </View>
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="plus-circle" size={size} color={color} />
           ),
         }}
         listeners={({ navigation }) => ({
@@ -109,18 +107,4 @@ export default function MainTabNavigator() {
   );
 }
 
-const styles = StyleSheet.create({
-  addButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: -20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-});
+const styles = StyleSheet.create({});
