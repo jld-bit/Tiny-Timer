@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import * as Haptics from "expo-haptics";
 import { SoundToneId } from "./types";
 
 const audioContextCache = new Map<string, AudioContext>();
@@ -24,6 +25,8 @@ interface ToneConfig {
   durations: number[];
   type: OscillatorType;
   volume: number;
+  hapticCount: number;
+  hapticStyle: "light" | "medium" | "heavy";
 }
 
 const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
@@ -32,60 +35,80 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     durations: [0.15, 0.15, 0.15, 0.3],
     type: "sine",
     volume: 0.3,
+    hapticCount: 4,
+    hapticStyle: "medium",
   },
   bell: {
     frequencies: [440, 554, 659],
     durations: [0.2, 0.2, 0.4],
     type: "sine",
     volume: 0.25,
+    hapticCount: 3,
+    hapticStyle: "heavy",
   },
   xylophone: {
     frequencies: [587, 659, 784, 880, 1047],
     durations: [0.1, 0.1, 0.1, 0.1, 0.2],
     type: "triangle",
     volume: 0.35,
+    hapticCount: 5,
+    hapticStyle: "light",
   },
   whistle: {
     frequencies: [880, 1047, 1175, 1319],
     durations: [0.08, 0.08, 0.08, 0.2],
     type: "sine",
     volume: 0.2,
+    hapticCount: 4,
+    hapticStyle: "light",
   },
   celebration: {
     frequencies: [523, 659, 784, 659, 784, 1047],
     durations: [0.1, 0.1, 0.1, 0.1, 0.1, 0.3],
     type: "square",
     volume: 0.15,
+    hapticCount: 6,
+    hapticStyle: "medium",
   },
   gentle: {
     frequencies: [392, 440, 494],
     durations: [0.3, 0.3, 0.5],
     type: "sine",
     volume: 0.2,
+    hapticCount: 2,
+    hapticStyle: "light",
   },
   playful: {
     frequencies: [523, 784, 523, 784, 1047],
     durations: [0.08, 0.08, 0.08, 0.08, 0.2],
     type: "square",
     volume: 0.12,
+    hapticCount: 5,
+    hapticStyle: "light",
   },
   magic: {
     frequencies: [440, 554, 659, 880, 1175, 1397],
     durations: [0.1, 0.1, 0.1, 0.1, 0.1, 0.3],
     type: "sine",
     volume: 0.25,
+    hapticCount: 6,
+    hapticStyle: "medium",
   },
   drumroll: {
     frequencies: [147, 165, 185, 196, 220, 247, 262],
     durations: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.2],
     type: "triangle",
     volume: 0.3,
+    hapticCount: 7,
+    hapticStyle: "heavy",
   },
   fanfare: {
     frequencies: [392, 392, 523, 523, 659, 784],
     durations: [0.15, 0.15, 0.15, 0.15, 0.2, 0.4],
     type: "sawtooth",
     volume: 0.15,
+    hapticCount: 6,
+    hapticStyle: "heavy",
   },
 };
 
@@ -120,18 +143,64 @@ async function playWebTone(toneId: SoundToneId): Promise<void> {
   }
 }
 
-async function playNativeTone(_toneId: SoundToneId): Promise<void> {
-  console.log("Native tone playback - using web audio on all platforms for now");
+async function playNativeHapticFeedback(toneId: SoundToneId, hapticsEnabled: boolean): Promise<void> {
+  if (Platform.OS === "web" || !hapticsEnabled) return;
+  
+  const config = TONE_CONFIGS[toneId];
+  const hapticStyle = config.hapticStyle === "light" 
+    ? Haptics.ImpactFeedbackStyle.Light 
+    : config.hapticStyle === "heavy" 
+      ? Haptics.ImpactFeedbackStyle.Heavy 
+      : Haptics.ImpactFeedbackStyle.Medium;
+  
+  try {
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    
+    for (let i = 0; i < config.hapticCount; i++) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await Haptics.impactAsync(hapticStyle);
+    }
+  } catch (error) {
+    console.log("Haptic feedback not available");
+  }
 }
 
-export async function playCompletionSound(toneId: SoundToneId): Promise<void> {
+export interface PlaySoundOptions {
+  hapticsEnabled?: boolean;
+}
+
+export async function playCompletionSound(toneId: SoundToneId, options: PlaySoundOptions = {}): Promise<void> {
+  const { hapticsEnabled = true } = options;
+  
   try {
-    await playWebTone(toneId);
+    if (Platform.OS === "web") {
+      await playWebTone(toneId);
+    } else {
+      await playNativeHapticFeedback(toneId, hapticsEnabled);
+    }
   } catch (error) {
     console.log("Failed to play sound:", error);
   }
 }
 
-export async function previewSound(toneId: SoundToneId): Promise<void> {
-  await playCompletionSound(toneId);
+export async function previewSound(toneId: SoundToneId, hapticsEnabled: boolean = true): Promise<void> {
+  if (Platform.OS === "web") {
+    await playWebTone(toneId);
+  } else if (hapticsEnabled) {
+    try {
+      const config = TONE_CONFIGS[toneId];
+      const hapticStyle = config.hapticStyle === "light" 
+        ? Haptics.ImpactFeedbackStyle.Light 
+        : config.hapticStyle === "heavy" 
+          ? Haptics.ImpactFeedbackStyle.Heavy 
+          : Haptics.ImpactFeedbackStyle.Medium;
+      
+      for (let i = 0; i < Math.min(config.hapticCount, 3); i++) {
+        await Haptics.impactAsync(hapticStyle);
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+    } catch {
+      console.log("Haptic preview not available");
+    }
+  }
 }

@@ -13,7 +13,7 @@ interface TimerContextType {
   isLoading: boolean;
   newBadge: string | null;
   clearNewBadge: () => void;
-  addTimer: (activityId: ActivityType, durationMinutes: number, customName?: string) => void;
+  addTimer: (activityId: ActivityType, durationMinutes: number, customName?: string, soundToneId?: import("./types").SoundToneId) => void;
   removeTimer: (id: string) => void;
   toggleTimer: (id: string) => void;
   resetTimer: (id: string) => void;
@@ -137,12 +137,11 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleTimerComplete = async (timer: Timer) => {
-    if (settings.hapticsEnabled && Platform.OS !== "web") {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
-
     if (settings.soundEnabled) {
-      playCompletionSound(settings.selectedSoundId);
+      const soundToPlay = timer.soundToneId || settings.selectedSoundId;
+      playCompletionSound(soundToPlay, { hapticsEnabled: settings.hapticsEnabled });
+    } else if (settings.hapticsEnabled && Platform.OS !== "web") {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
 
     const historyEntry: HistoryEntry = {
@@ -194,7 +193,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     setNewBadge(null);
   }, []);
 
-  const addTimer = useCallback((activityId: ActivityType, durationMinutes: number, customName?: string) => {
+  const addTimer = useCallback((activityId: ActivityType, durationMinutes: number, customName?: string, soundToneId?: import("./types").SoundToneId) => {
     const activity = getActivityById(activityId);
     const customActivity = customActivities.find((a) => a.id === activityId);
     const name = customName || customActivity?.name || activity?.name || "Timer";
@@ -209,6 +208,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       isRunning: true,
       isPaused: false,
       createdAt: Date.now(),
+      soundToneId: soundToneId || settings.selectedSoundId,
     };
 
     if (settings.hapticsEnabled && Platform.OS !== "web") {

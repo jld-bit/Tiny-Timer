@@ -65,6 +65,7 @@ export interface Timer {
   isPaused: boolean;
   createdAt: number;
   completedAt?: number;
+  soundToneId?: SoundToneId;
 }
 
 export interface HistoryEntry {

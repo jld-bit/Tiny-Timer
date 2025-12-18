@@ -10,7 +10,8 @@ import { Button } from "@/components/Button";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useTheme } from "@/hooks/useTheme";
 import { useTimers } from "@/lib/timerContext";
-import { ACTIVITIES, Activity, ActivityType } from "@/lib/types";
+import { ACTIVITIES, Activity, ActivityType, SOUND_TONES, SoundToneId } from "@/lib/types";
+import { previewSound } from "@/lib/sounds";
 import { Spacing, Colors, BorderRadius, ActivityColors } from "@/constants/theme";
 import { RootStackParamList } from "@/navigation/RootStackNavigator";
 import Animated, {
@@ -144,8 +145,8 @@ export default function AddTimerScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
-  const { addTimer, customActivities } = useTimers();
-
+  const { addTimer, customActivities, settings } = useTimers();
+  
   const allActivities = [...ACTIVITIES, ...customActivities];
   
   const [selectedActivity, setSelectedActivity] = useState<Activity>(ACTIVITIES[0]);
@@ -153,6 +154,7 @@ export default function AddTimerScreen() {
     ACTIVITIES[0].defaultMinutes
   );
   const [customTimerName, setCustomTimerName] = useState("");
+  const [selectedSoundId, setSelectedSoundId] = useState<SoundToneId>(settings.selectedSoundId);
   
   const selectedActivityColor = ActivityColors[selectedActivity.id] || Colors.light.primary;
 
@@ -173,8 +175,13 @@ export default function AddTimerScreen() {
 
   const handleStartTimer = () => {
     const customName = customTimerName.trim() || (selectedActivity.isCustom ? selectedActivity.name : undefined);
-    addTimer(selectedActivity.id as ActivityType, selectedMinutes, customName);
+    addTimer(selectedActivity.id as ActivityType, selectedMinutes, customName, selectedSoundId);
     navigation.goBack();
+  };
+
+  const handleSoundSelect = (soundId: SoundToneId) => {
+    setSelectedSoundId(soundId);
+    previewSound(soundId, settings.hapticsEnabled);
   };
 
   return (
@@ -239,6 +246,52 @@ export default function AddTimerScreen() {
             placeholderTextColor={theme.textSecondary}
             maxLength={40}
           />
+        </View>
+
+        <View style={styles.section}>
+          <ThemedText type="h3" style={styles.sectionTitle}>
+            Completion Sound
+          </ThemedText>
+          <View style={styles.soundsGrid}>
+            {SOUND_TONES.map((tone) => {
+              const isSelected = selectedSoundId === tone.id;
+              return (
+                <Pressable
+                  key={tone.id}
+                  onPress={() => handleSoundSelect(tone.id)}
+                  style={[
+                    styles.soundOption,
+                    {
+                      backgroundColor: isSelected ? selectedActivityColor + "20" : theme.backgroundDefault,
+                      borderColor: isSelected ? selectedActivityColor : "transparent",
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.soundIconContainer,
+                      { backgroundColor: isSelected ? selectedActivityColor : theme.backgroundTertiary },
+                    ]}
+                  >
+                    <Feather
+                      name={tone.icon as any}
+                      size={16}
+                      color={isSelected ? "#FFFFFF" : theme.textSecondary}
+                    />
+                  </View>
+                  <ThemedText
+                    type="small"
+                    style={{ color: isSelected ? selectedActivityColor : theme.text }}
+                  >
+                    {tone.name}
+                  </ThemedText>
+                  {isSelected ? (
+                    <Feather name="check" size={14} color={selectedActivityColor} />
+                  ) : null}
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
       </KeyboardAwareScrollViewCompat>
 
@@ -333,5 +386,26 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     padding: Spacing.sm,
+  },
+  soundsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.sm,
+  },
+  soundOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 2,
+    gap: Spacing.xs,
+  },
+  soundIconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

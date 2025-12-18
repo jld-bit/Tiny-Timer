@@ -125,10 +125,12 @@ function SoundToneCard({
   toneId,
   isSelected,
   onSelect,
+  hapticsEnabled,
 }: {
   toneId: SoundToneId;
   isSelected: boolean;
   onSelect: () => void;
+  hapticsEnabled: boolean;
 }) {
   const { theme } = useTheme();
   const tone = SOUND_TONES.find((t) => t.id === toneId);
@@ -136,7 +138,7 @@ function SoundToneCard({
 
   const handlePress = () => {
     onSelect();
-    previewSound(toneId);
+    previewSound(toneId, hapticsEnabled);
   };
 
   return (
@@ -242,6 +244,7 @@ export default function SettingsScreen() {
                   toneId={tone.id}
                   isSelected={settings.selectedSoundId === tone.id}
                   onSelect={() => updateSettings({ selectedSoundId: tone.id })}
+                  hapticsEnabled={settings.hapticsEnabled}
                 />
               ))}
             </View>

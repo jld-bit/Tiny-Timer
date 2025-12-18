@@ -43,6 +43,14 @@ Preferred communication style: Simple, everyday language.
 - Haptic feedback on timer events (configurable)
 - History logging on completion with badge progression
 
+### Sound System
+- **Per-timer Sound Selection**: Each timer can have its own completion sound selected when created
+- **10 Sound Tones**: Chime, Bell, Xylophone, Whistle, Celebration, Gentle, Playful, Magic, Drumroll, Fanfare
+- **Web Platform**: Full audio playback using Web Audio API with synthesized tones
+- **Native Platform**: Haptic feedback patterns that vary by tone (count and intensity differ per tone)
+- **Settings Respect**: Sound and haptic settings are properly respected on both platforms
+- **Known Limitation**: Native devices use haptic patterns instead of audio (would require bundled audio files for actual audio playback)
+
 ## External Dependencies
 
 ### Core Libraries
