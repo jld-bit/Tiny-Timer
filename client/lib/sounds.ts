@@ -1,6 +1,8 @@
 import { Platform } from "react-native";
 import * as Haptics from "expo-haptics";
+import * as FileSystem from "expo-file-system";
 import { SoundToneId } from "./types";
+import { getApiUrl } from "./query-client";
 
 const audioContextCache = new Map<string, AudioContext>();
 
@@ -120,81 +122,46 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
   },
 };
 
-function generateWavDataUri(frequencies: number[], durations: number[], volume: number): string {
-  const sampleRate = 44100;
-  let totalSamples = 0;
-  for (const d of durations) {
-    totalSamples += Math.floor(sampleRate * d);
-  }
-  
-  const samples = new Float32Array(totalSamples);
-  let offset = 0;
-  
-  for (let i = 0; i < frequencies.length; i++) {
-    const freq = frequencies[i];
-    const duration = durations[i];
-    const numSamples = Math.floor(sampleRate * duration);
-    
-    for (let j = 0; j < numSamples; j++) {
-      const t = j / sampleRate;
-      const envelope = Math.exp(-3 * t / duration);
-      samples[offset + j] = Math.sin(2 * Math.PI * freq * t) * volume * envelope;
-    }
-    offset += numSamples;
-  }
-  
-  const buffer = new ArrayBuffer(44 + totalSamples * 2);
-  const view = new DataView(buffer);
-  
-  const writeString = (offset: number, str: string) => {
-    for (let i = 0; i < str.length; i++) {
-      view.setUint8(offset + i, str.charCodeAt(i));
-    }
-  };
-  
-  writeString(0, 'RIFF');
-  view.setUint32(4, 36 + totalSamples * 2, true);
-  writeString(8, 'WAVE');
-  writeString(12, 'fmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, 1, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * 2, true);
-  view.setUint16(32, 2, true);
-  view.setUint16(34, 16, true);
-  writeString(36, 'data');
-  view.setUint32(40, totalSamples * 2, true);
-  
-  for (let i = 0; i < totalSamples; i++) {
-    const sample = Math.max(-1, Math.min(1, samples[i]));
-    view.setInt16(44 + i * 2, sample * 0x7FFF, true);
-  }
-  
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  
-  return 'data:audio/wav;base64,' + btoa(binary);
-}
+const audioFileCache = new Map<SoundToneId, string>();
 
-const audioCache = new Map<SoundToneId, string>();
-
-function getOrCreateAudioUri(toneId: SoundToneId): string | null {
+async function ensureAudioCached(toneId: SoundToneId): Promise<string | null> {
   if (toneId === "vibrate_only") return null;
   
-  if (audioCache.has(toneId)) {
-    return audioCache.get(toneId)!;
+  if (audioFileCache.has(toneId)) {
+    const cachedPath = audioFileCache.get(toneId)!;
+    const fileInfo = await FileSystem.getInfoAsync(cachedPath);
+    if (fileInfo.exists) {
+      return cachedPath;
+    }
   }
   
-  const config = TONE_CONFIGS[toneId];
-  if (config.frequencies.length === 0) return null;
-  
-  const uri = generateWavDataUri(config.frequencies, config.durations, config.volume);
-  audioCache.set(toneId, uri);
-  return uri;
+  try {
+    const cacheDir = FileSystem.cacheDirectory;
+    if (!cacheDir) return null;
+    
+    const localPath = `${cacheDir}timer_sound_${toneId}.wav`;
+    const fileInfo = await FileSystem.getInfoAsync(localPath);
+    
+    if (fileInfo.exists) {
+      audioFileCache.set(toneId, localPath);
+      return localPath;
+    }
+    
+    const apiUrl = getApiUrl();
+    const downloadUrl = `${apiUrl}/api/audio/${toneId}`;
+    
+    const downloadResult = await FileSystem.downloadAsync(downloadUrl, localPath);
+    
+    if (downloadResult.status === 200) {
+      audioFileCache.set(toneId, localPath);
+      return localPath;
+    }
+    
+    return null;
+  } catch (error) {
+    console.log("Failed to cache audio file:", error);
+    return null;
+  }
 }
 
 async function playWebTone(toneId: SoundToneId): Promise<void> {
@@ -234,6 +201,30 @@ async function playNativeTone(toneId: SoundToneId): Promise<void> {
   if (toneId === "vibrate_only") return;
   
   try {
+    const audioPath = await ensureAudioCached(toneId);
+    if (!audioPath) {
+      console.log("Audio file not available, using speech fallback");
+      await playSpeechFallback(toneId);
+      return;
+    }
+    
+    const ExpoAudio = await import("expo-audio");
+    const player = ExpoAudio.createAudioPlayer({ uri: audioPath });
+    player.play();
+    
+    setTimeout(() => {
+      try {
+        player.release();
+      } catch {}
+    }, 3000);
+  } catch (error) {
+    console.log("Native audio playback failed, using speech fallback:", error);
+    await playSpeechFallback(toneId);
+  }
+}
+
+async function playSpeechFallback(toneId: SoundToneId): Promise<void> {
+  try {
     const Speech = await import("expo-speech");
     
     const messages: Record<SoundToneId, string> = {
@@ -241,13 +232,13 @@ async function playNativeTone(toneId: SoundToneId): Promise<void> {
       chime: "Timer done!",
       bell: "Ding ding! Time is up!",
       xylophone: "Time is up!",
-      whistle: "Whee! Timer finished!",
+      whistle: "Timer finished!",
       celebration: "Yay! Great job!",
       gentle: "Your timer is complete.",
-      playful: "Woohoo! All done!",
-      magic: "Poof! Timer complete!",
+      playful: "All done!",
+      magic: "Timer complete!",
       drumroll: "And... time!",
-      fanfare: "Ta-da! Well done!",
+      fanfare: "Well done!",
     };
     
     const message = messages[toneId] || "Timer complete!";
@@ -257,7 +248,7 @@ async function playNativeTone(toneId: SoundToneId): Promise<void> {
       rate: 0.9,
     });
   } catch (error) {
-    console.log("Native audio playback failed:", error);
+    console.log("Speech fallback failed:", error);
   }
 }
 
@@ -346,6 +337,22 @@ export async function previewSound(toneId: SoundToneId, hapticsEnabled: boolean 
       } catch {
         console.log("Haptic preview not available");
       }
+    }
+  }
+}
+
+export async function preloadSounds(): Promise<void> {
+  if (Platform.OS === "web") return;
+  
+  const toneIds: SoundToneId[] = [
+    "chime", "bell", "xylophone", "whistle", "celebration",
+    "gentle", "playful", "magic", "drumroll", "fanfare"
+  ];
+  
+  for (const toneId of toneIds) {
+    try {
+      await ensureAudioCached(toneId);
+    } catch {
     }
   }
 }
