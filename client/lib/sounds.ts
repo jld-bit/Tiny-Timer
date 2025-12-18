@@ -238,7 +238,7 @@ async function playNativeTone(toneId: SoundToneId): Promise<void> {
     if (!uri) return;
     
     const ExpoAudio = await import("expo-audio");
-    const player = ExpoAudio.createAudioPlayer(uri);
+    const player = ExpoAudio.createAudioPlayer({ uri });
     player.play();
     
     setTimeout(() => {
