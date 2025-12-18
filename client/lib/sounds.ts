@@ -30,6 +30,14 @@ interface ToneConfig {
 }
 
 const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
+  vibrate_only: {
+    frequencies: [],
+    durations: [],
+    type: "sine",
+    volume: 0,
+    hapticCount: 3,
+    hapticStyle: "medium",
+  },
   chime: {
     frequencies: [523, 659, 784, 1047],
     durations: [0.15, 0.15, 0.15, 0.3],
@@ -113,6 +121,8 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
 };
 
 async function playWebTone(toneId: SoundToneId): Promise<void> {
+  if (toneId === "vibrate_only") return;
+  
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -173,6 +183,13 @@ export async function playCompletionSound(toneId: SoundToneId, options: PlaySoun
   const { hapticsEnabled = true } = options;
   
   try {
+    if (toneId === "vibrate_only") {
+      if (hapticsEnabled) {
+        await playNativeHapticFeedback(toneId, true);
+      }
+      return;
+    }
+    
     if (Platform.OS === "web") {
       await playWebTone(toneId);
     } else {
@@ -184,6 +201,20 @@ export async function playCompletionSound(toneId: SoundToneId, options: PlaySoun
 }
 
 export async function previewSound(toneId: SoundToneId, hapticsEnabled: boolean = true): Promise<void> {
+  if (toneId === "vibrate_only") {
+    if (hapticsEnabled && Platform.OS !== "web") {
+      try {
+        for (let i = 0; i < 3; i++) {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          await new Promise(resolve => setTimeout(resolve, 80));
+        }
+      } catch {
+        console.log("Haptic preview not available");
+      }
+    }
+    return;
+  }
+  
   if (Platform.OS === "web") {
     await playWebTone(toneId);
   } else if (hapticsEnabled) {

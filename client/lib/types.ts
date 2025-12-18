@@ -25,7 +25,8 @@ export type SoundToneId =
   | "playful"
   | "magic"
   | "drumroll"
-  | "fanfare";
+  | "fanfare"
+  | "vibrate_only";
 
 export interface SoundTone {
   id: SoundToneId;
@@ -34,6 +35,7 @@ export interface SoundTone {
 }
 
 export const SOUND_TONES: SoundTone[] = [
+  { id: "vibrate_only", name: "Vibrate Only", icon: "smartphone" },
   { id: "chime", name: "Chime", icon: "bell" },
   { id: "bell", name: "Bell", icon: "volume-2" },
   { id: "xylophone", name: "Xylophone", icon: "music" },
