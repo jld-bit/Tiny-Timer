@@ -3,7 +3,7 @@ import { AppState, AppStateStatus, Platform } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Timer, HistoryEntry, AppSettings, ActivityType, getActivityById, UserProgress, BADGES, Activity } from "./types";
 import { storage } from "./storage";
-import { playCompletionSound } from "./sounds";
+import { playCompletionSound, stopCompletionSound } from "./sounds";
 
 interface TimerContextType {
   timers: Timer[];
@@ -223,6 +223,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   }, [settings.hapticsEnabled, customActivities]);
 
   const removeTimer = useCallback((id: string) => {
+    stopCompletionSound();
     if (settings.hapticsEnabled && Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }

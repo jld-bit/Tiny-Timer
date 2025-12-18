@@ -3,6 +3,13 @@ import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
 import { SoundToneId } from "./types";
 
+const LOOP_DURATION_MS = 2 * 60 * 1000;
+
+let activeSound: Audio.Sound | null = null;
+let activeLoopTimeout: ReturnType<typeof setTimeout> | null = null;
+let webOscillators: OscillatorNode[] = [];
+let webLoopInterval: ReturnType<typeof setInterval> | null = null;
+
 const audioContextCache = new Map<string, AudioContext>();
 
 function getAudioContext(): AudioContext | null {
@@ -215,7 +222,13 @@ function getWavDataUri(toneId: SoundToneId): string | null {
   return dataUri;
 }
 
-async function playWebTone(toneId: SoundToneId): Promise<void> {
+function getToneDuration(toneId: SoundToneId): number {
+  const config = TONE_CONFIGS[toneId];
+  if (!config) return 1000;
+  return config.durations.reduce((a, b) => a + b, 0) * 1000;
+}
+
+async function playWebToneOnce(toneId: SoundToneId): Promise<void> {
   if (toneId === "vibrate_only") return;
   
   const ctx = getAudioContext();
@@ -243,19 +256,41 @@ async function playWebTone(toneId: SoundToneId): Promise<void> {
 
     osc.start(startTime);
     osc.stop(startTime + config.durations[i]);
+    
+    webOscillators.push(osc);
 
     startTime += config.durations[i] * 0.8;
   }
 }
 
-async function playNativeTone(toneId: SoundToneId): Promise<void> {
+async function playWebToneLooping(toneId: SoundToneId): Promise<void> {
   if (toneId === "vibrate_only") return;
+  
+  stopCompletionSound();
+  
+  const toneDuration = getToneDuration(toneId);
+  const pauseBetween = 1500;
+  const interval = toneDuration + pauseBetween;
+  
+  await playWebToneOnce(toneId);
+  
+  webLoopInterval = setInterval(() => {
+    playWebToneOnce(toneId);
+  }, interval);
+  
+  activeLoopTimeout = setTimeout(() => {
+    stopCompletionSound();
+  }, LOOP_DURATION_MS);
+}
+
+async function playNativeToneOnce(toneId: SoundToneId): Promise<Audio.Sound | null> {
+  if (toneId === "vibrate_only") return null;
   
   try {
     const dataUri = getWavDataUri(toneId);
     if (!dataUri) {
       console.log("Could not generate audio for tone:", toneId);
-      return;
+      return null;
     }
     
     await Audio.setAudioModeAsync({
@@ -266,17 +301,52 @@ async function playNativeTone(toneId: SoundToneId): Promise<void> {
     
     const { sound } = await Audio.Sound.createAsync(
       { uri: dataUri },
-      { shouldPlay: true, volume: 1.0 }
+      { shouldPlay: true, volume: 1.0, isLooping: false }
     );
     
-    sound.setOnPlaybackStatusUpdate((status: { isLoaded: boolean; didJustFinish?: boolean }) => {
-      if (status.isLoaded && status.didJustFinish) {
-        sound.unloadAsync();
-      }
-    });
+    return sound;
   } catch (error) {
     console.log("Native audio playback failed:", error);
+    return null;
   }
+}
+
+async function playNativeToneLooping(toneId: SoundToneId): Promise<void> {
+  if (toneId === "vibrate_only") return;
+  
+  stopCompletionSound();
+  
+  const toneDuration = getToneDuration(toneId);
+  const pauseBetween = 1500;
+  
+  const playOnce = async () => {
+    if (activeSound) {
+      try {
+        await activeSound.unloadAsync();
+      } catch {}
+    }
+    
+    const sound = await playNativeToneOnce(toneId);
+    if (sound) {
+      activeSound = sound;
+      
+      sound.setOnPlaybackStatusUpdate((status: { isLoaded: boolean; didJustFinish?: boolean }) => {
+        if (status.isLoaded && status.didJustFinish && activeLoopTimeout) {
+          setTimeout(() => {
+            if (activeLoopTimeout) {
+              playOnce();
+            }
+          }, pauseBetween);
+        }
+      });
+    }
+  };
+  
+  await playOnce();
+  
+  activeLoopTimeout = setTimeout(() => {
+    stopCompletionSound();
+  }, LOOP_DURATION_MS);
 }
 
 async function playNativeHapticFeedback(toneId: SoundToneId, hapticsEnabled: boolean): Promise<void> {
@@ -301,6 +371,34 @@ async function playNativeHapticFeedback(toneId: SoundToneId, hapticsEnabled: boo
   }
 }
 
+export function stopCompletionSound(): void {
+  if (activeLoopTimeout) {
+    clearTimeout(activeLoopTimeout);
+    activeLoopTimeout = null;
+  }
+  
+  if (webLoopInterval) {
+    clearInterval(webLoopInterval);
+    webLoopInterval = null;
+  }
+  
+  for (const osc of webOscillators) {
+    try {
+      osc.stop();
+      osc.disconnect();
+    } catch {}
+  }
+  webOscillators = [];
+  
+  if (activeSound) {
+    try {
+      activeSound.stopAsync();
+      activeSound.unloadAsync();
+    } catch {}
+    activeSound = null;
+  }
+}
+
 export interface PlaySoundOptions {
   hapticsEnabled?: boolean;
 }
@@ -317,9 +415,9 @@ export async function playCompletionSound(toneId: SoundToneId, options: PlaySoun
     }
     
     if (Platform.OS === "web") {
-      await playWebTone(toneId);
+      await playWebToneLooping(toneId);
     } else {
-      await playNativeTone(toneId);
+      await playNativeToneLooping(toneId);
       if (hapticsEnabled) {
         await playNativeHapticFeedback(toneId, hapticsEnabled);
       }
@@ -330,6 +428,8 @@ export async function playCompletionSound(toneId: SoundToneId, options: PlaySoun
 }
 
 export async function previewSound(toneId: SoundToneId, hapticsEnabled: boolean = true): Promise<void> {
+  stopCompletionSound();
+  
   if (toneId === "vibrate_only") {
     if (hapticsEnabled && Platform.OS !== "web") {
       try {
@@ -345,9 +445,17 @@ export async function previewSound(toneId: SoundToneId, hapticsEnabled: boolean 
   }
   
   if (Platform.OS === "web") {
-    await playWebTone(toneId);
+    await playWebToneOnce(toneId);
   } else {
-    await playNativeTone(toneId);
+    const sound = await playNativeToneOnce(toneId);
+    if (sound) {
+      sound.setOnPlaybackStatusUpdate((status: { isLoaded: boolean; didJustFinish?: boolean }) => {
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    }
+    
     if (hapticsEnabled) {
       try {
         const config = TONE_CONFIGS[toneId];
