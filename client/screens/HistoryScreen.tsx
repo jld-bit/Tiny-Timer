@@ -210,7 +210,7 @@ function HistoryCard({ entry, onDelete }: { entry: HistoryEntry; onDelete: () =>
     <SwipeableRow
       onSwipeComplete={onDelete}
       actionLabel="Delete"
-      actionIcon="trash-2"
+      actionIcon="trash-outline"
       actionColor={Colors.light.error}
     >
       {cardContent}
@@ -384,7 +384,7 @@ export default function HistoryScreen() {
         {history.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={[styles.emptyIcon, { backgroundColor: theme.backgroundDefault }]}>
-              <Feather name="clock" size={48} color={theme.textSecondary} />
+              <Ionicons name="time-outline" size={48} color={theme.textSecondary} />
             </View>
             <ThemedText type="h3" style={styles.emptyTitle}>
               No completed timers yet
@@ -396,7 +396,7 @@ export default function HistoryScreen() {
         ) : filteredHistory.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={[styles.emptyIcon, { backgroundColor: theme.backgroundDefault }]}>
-              <Feather name="filter" size={48} color={theme.textSecondary} />
+              <Ionicons name="filter-outline" size={48} color={theme.textSecondary} />
             </View>
             <ThemedText type="h3" style={styles.emptyTitle}>
               No activity in this period

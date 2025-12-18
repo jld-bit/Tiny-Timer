@@ -162,7 +162,7 @@ export default function AddTimerScreen() {
     navigation.setOptions({
       headerLeft: () => (
         <Pressable onPress={() => navigation.goBack()} style={styles.headerButton}>
-          <Feather name="x" size={24} color={theme.text} />
+          <Ionicons name="close" size={24} color={theme.text} />
         </Pressable>
       ),
     });
@@ -273,7 +273,7 @@ export default function AddTimerScreen() {
                       { backgroundColor: isSelected ? selectedActivityColor : theme.backgroundTertiary },
                     ]}
                   >
-                    <Feather
+                    <Ionicons
                       name={tone.icon as any}
                       size={16}
                       color={isSelected ? "#FFFFFF" : theme.textSecondary}
@@ -286,7 +286,7 @@ export default function AddTimerScreen() {
                     {tone.name}
                   </ThemedText>
                   {isSelected ? (
-                    <Feather name="check" size={14} color={selectedActivityColor} />
+                    <Ionicons name="checkmark" size={14} color={selectedActivityColor} />
                   ) : null}
                 </Pressable>
               );
