@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { StyleSheet, ScrollView, View, Pressable } from "react-native";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { SwipeableRow } from "@/components/SwipeableRow";
@@ -186,7 +186,7 @@ function HistoryCard({ entry, onDelete }: { entry: HistoryEntry; onDelete: () =>
   const cardContent = (
     <View style={[styles.historyCard, { backgroundColor: theme.backgroundDefault }]}>
       <View style={[styles.iconContainer, { backgroundColor: Colors.light.success + "20" }]}>
-        <Ionicons name="checkmark-circle" size={24} color={Colors.light.success} />
+        <Feather name="check-circle" size={24} color={Colors.light.success} />
       </View>
       <View style={styles.cardContent}>
         <ThemedText type="bodyMedium">{entry.activityName}</ThemedText>
@@ -201,7 +201,7 @@ function HistoryCard({ entry, onDelete }: { entry: HistoryEntry; onDelete: () =>
         </View>
       </View>
       <View style={[styles.badge, { backgroundColor: activityColor + "20" }]}>
-        <Ionicons name="star" size={16} color={activityColor} />
+        <Feather name="star" size={16} color={activityColor} />
       </View>
     </View>
   );
@@ -210,7 +210,7 @@ function HistoryCard({ entry, onDelete }: { entry: HistoryEntry; onDelete: () =>
     <SwipeableRow
       onSwipeComplete={onDelete}
       actionLabel="Delete"
-      actionIcon="trash-outline"
+      actionIcon="trash-2"
       actionColor={Colors.light.error}
     >
       {cardContent}
@@ -384,7 +384,7 @@ export default function HistoryScreen() {
         {history.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={[styles.emptyIcon, { backgroundColor: theme.backgroundDefault }]}>
-              <Ionicons name="time-outline" size={48} color={theme.textSecondary} />
+              <Feather name="clock" size={48} color={theme.textSecondary} />
             </View>
             <ThemedText type="h3" style={styles.emptyTitle}>
               No completed timers yet
@@ -396,7 +396,7 @@ export default function HistoryScreen() {
         ) : filteredHistory.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={[styles.emptyIcon, { backgroundColor: theme.backgroundDefault }]}>
-              <Ionicons name="filter-outline" size={48} color={theme.textSecondary} />
+              <Feather name="filter" size={48} color={theme.textSecondary} />
             </View>
             <ThemedText type="h3" style={styles.emptyTitle}>
               No activity in this period

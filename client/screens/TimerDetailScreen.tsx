@@ -4,7 +4,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -68,7 +68,7 @@ function ControlButton({
         animatedStyle,
       ]}
     >
-      <Ionicons name={icon as any} size={size * 0.4} color={color} />
+      <Feather name={icon as any} size={size * 0.4} color={color} />
     </AnimatedPressable>
   );
 }
@@ -105,7 +105,7 @@ export default function TimerDetailScreen() {
           }}
           style={styles.headerButton}
         >
-          <Ionicons name="trash-outline" size={22} color={Colors.light.error} />
+          <Feather name="trash-2" size={22} color={Colors.light.error} />
         </Pressable>
       ),
     });
@@ -137,7 +137,7 @@ export default function TimerDetailScreen() {
       <View style={[styles.content, { paddingTop: insets.top + 80 }]}>
         <View style={styles.activityHeader}>
           <View style={[styles.activityIcon, { backgroundColor: activityColor + "20" }]}>
-            <Ionicons name="timer-outline" size={28} color={activityColor} />
+            <Feather name="clock" size={28} color={activityColor} />
           </View>
           <ThemedText type="h2">{timer.activityName}</ThemedText>
         </View>
@@ -155,7 +155,7 @@ export default function TimerDetailScreen() {
             </ThemedText>
             {isCompleted ? (
               <View style={[styles.completeBadge, { backgroundColor: Colors.light.success }]}>
-                <Ionicons name="checkmark" size={20} color="#FFFFFF" />
+                <Feather name="check" size={20} color="#FFFFFF" />
                 <ThemedText style={styles.completeText}>Complete!</ThemedText>
               </View>
             ) : isPaused ? (

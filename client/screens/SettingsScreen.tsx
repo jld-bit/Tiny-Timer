@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, View, Switch, Pressable, Platform } from "react
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
@@ -38,7 +38,7 @@ function SettingRow({
   const content = (
     <View style={[styles.settingRow, { backgroundColor: theme.backgroundDefault }]}>
       <View style={[styles.iconContainer, { backgroundColor: Colors.light.primary + "15" }]}>
-        <Ionicons name={icon as any} size={20} color={Colors.light.primary} />
+        <Feather name={icon as any} size={20} color={Colors.light.primary} />
       </View>
       <View style={styles.settingContent}>
         <ThemedText type="bodyMedium">{title}</ThemedText>
@@ -57,7 +57,7 @@ function SettingRow({
           ios_backgroundColor={theme.backgroundTertiary}
         />
       ) : (
-        <Ionicons name="chevron-forward" size={20} color={theme.textSecondary} />
+        <Feather name="chevron-right" size={20} color={theme.textSecondary} />
       )}
     </View>
   );
@@ -114,7 +114,7 @@ function ThemeCard({
       </ThemedText>
       {isSelected ? (
         <View style={[styles.checkBadge, { backgroundColor: themeConfig.colors.primary }]}>
-          <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+          <Feather name="check" size={12} color="#FFFFFF" />
         </View>
       ) : null}
     </Pressable>
@@ -154,13 +154,13 @@ function SoundToneCard({
       ]}
     >
       <View style={[styles.soundIconContainer, { backgroundColor: isSelected ? Colors.light.primary : theme.backgroundTertiary }]}>
-        <Ionicons name={tone.icon as any} size={16} color={isSelected ? "#FFFFFF" : theme.textSecondary} />
+        <Feather name={tone.icon as any} size={16} color={isSelected ? "#FFFFFF" : theme.textSecondary} />
       </View>
       <ThemedText type="caption" style={{ color: isSelected ? Colors.light.primary : theme.text }}>
         {tone.name}
       </ThemedText>
       {isSelected ? (
-        <Ionicons name="checkmark" size={14} color={Colors.light.primary} />
+        <Feather name="check" size={14} color={Colors.light.primary} />
       ) : null}
     </Pressable>
   );
@@ -296,7 +296,7 @@ export default function SettingsScreen() {
           <View style={styles.sectionContent}>
             <View style={[styles.settingRow, { backgroundColor: theme.backgroundDefault }]}>
               <View style={[styles.iconContainer, { backgroundColor: Colors.light.secondary + "15" }]}>
-                <Ionicons name="information-circle-outline" size={20} color={Colors.light.secondary} />
+                <Feather name="info" size={20} color={Colors.light.secondary} />
               </View>
               <View style={styles.settingContent}>
                 <ThemedText type="bodyMedium">Kids Timer</ThemedText>

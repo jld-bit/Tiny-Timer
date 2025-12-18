@@ -9,7 +9,7 @@ import Animated, {
   runOnJS,
   WithSpringConfig,
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors, Spacing, BorderRadius } from "@/constants/theme";
 
@@ -17,7 +17,7 @@ interface SwipeableRowProps {
   children: React.ReactNode;
   onSwipeComplete: () => void;
   actionLabel?: string;
-  actionIcon?: keyof typeof Ionicons.glyphMap;
+  actionIcon?: keyof typeof Feather.glyphMap;
   actionColor?: string;
 }
 
@@ -35,7 +35,7 @@ export function SwipeableRow({
   children,
   onSwipeComplete,
   actionLabel = "Delete",
-  actionIcon = "trash-outline",
+  actionIcon = "trash-2",
   actionColor = Colors.light.error,
 }: SwipeableRowProps) {
   const translateX = useSharedValue(0);
@@ -84,7 +84,7 @@ export function SwipeableRow({
   return (
     <Animated.View style={[styles.container, containerStyle]}>
       <Animated.View style={[styles.actionContainer, { backgroundColor: actionColor }, actionStyle]}>
-        <Ionicons name={actionIcon} size={20} color="#FFFFFF" />
+        <Feather name={actionIcon} size={20} color="#FFFFFF" />
         <ThemedText style={styles.actionLabel}>{actionLabel}</ThemedText>
       </Animated.View>
       <GestureDetector gesture={panGesture}>

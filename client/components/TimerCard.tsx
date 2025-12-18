@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
   WithSpringConfig,
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ProgressRing } from "@/components/ProgressRing";
 import { SwipeableRow } from "@/components/SwipeableRow";
@@ -90,21 +90,21 @@ export function TimerCard({ timer, onPress, onSwipeDelete }: TimerCardProps) {
           <View style={styles.statusRow}>
             {isCompleted ? (
               <View style={[styles.statusBadge, { backgroundColor: successColor + "20" }]}>
-                <Ionicons name="checkmark" size={14} color={successColor} />
+                <Feather name="check" size={14} color={successColor} />
                 <ThemedText style={[styles.statusText, { color: successColor }]}>
                   Complete
                 </ThemedText>
               </View>
             ) : isPaused ? (
               <View style={[styles.statusBadge, { backgroundColor: pausedColor + "20" }]}>
-                <Ionicons name="pause" size={14} color={pausedColor} />
+                <Feather name="pause" size={14} color={pausedColor} />
                 <ThemedText style={[styles.statusText, { color: pausedColor }]}>
                   Paused
                 </ThemedText>
               </View>
             ) : (
               <View style={[styles.statusBadge, { backgroundColor: activityColor + "20" }]}>
-                <Ionicons name="play" size={14} color={activityColor} />
+                <Feather name="play" size={14} color={activityColor} />
                 <ThemedText style={[styles.statusText, { color: activityColor }]}>
                   Running
                 </ThemedText>
@@ -112,7 +112,7 @@ export function TimerCard({ timer, onPress, onSwipeDelete }: TimerCardProps) {
             )}
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={24} color={theme.textSecondary} />
+        <Feather name="chevron-right" size={24} color={theme.textSecondary} />
       </View>
     </AnimatedPressable>
   );

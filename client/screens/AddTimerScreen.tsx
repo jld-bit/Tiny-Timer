@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, View, Pressable, Platform, TextInput } from "re
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { Button } from "@/components/Button";
@@ -69,7 +69,7 @@ function ActivityOption({
         animatedStyle,
       ]}
     >
-      <Ionicons
+      <Feather
         name={activity.icon as any}
         size={28}
         color={isSelected ? activityColor : theme.textSecondary}
@@ -162,7 +162,7 @@ export default function AddTimerScreen() {
     navigation.setOptions({
       headerLeft: () => (
         <Pressable onPress={() => navigation.goBack()} style={styles.headerButton}>
-          <Ionicons name="close" size={24} color={theme.text} />
+          <Feather name="x" size={24} color={theme.text} />
         </Pressable>
       ),
     });
@@ -273,7 +273,7 @@ export default function AddTimerScreen() {
                       { backgroundColor: isSelected ? selectedActivityColor : theme.backgroundTertiary },
                     ]}
                   >
-                    <Ionicons
+                    <Feather
                       name={tone.icon as any}
                       size={16}
                       color={isSelected ? "#FFFFFF" : theme.textSecondary}
@@ -286,7 +286,7 @@ export default function AddTimerScreen() {
                     {tone.name}
                   </ThemedText>
                   {isSelected ? (
-                    <Ionicons name="checkmark" size={14} color={selectedActivityColor} />
+                    <Feather name="check" size={14} color={selectedActivityColor} />
                   ) : null}
                 </Pressable>
               );
