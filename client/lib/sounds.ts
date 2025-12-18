@@ -120,6 +120,83 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
   },
 };
 
+function generateWavDataUri(frequencies: number[], durations: number[], volume: number): string {
+  const sampleRate = 44100;
+  let totalSamples = 0;
+  for (const d of durations) {
+    totalSamples += Math.floor(sampleRate * d);
+  }
+  
+  const samples = new Float32Array(totalSamples);
+  let offset = 0;
+  
+  for (let i = 0; i < frequencies.length; i++) {
+    const freq = frequencies[i];
+    const duration = durations[i];
+    const numSamples = Math.floor(sampleRate * duration);
+    
+    for (let j = 0; j < numSamples; j++) {
+      const t = j / sampleRate;
+      const envelope = Math.exp(-3 * t / duration);
+      samples[offset + j] = Math.sin(2 * Math.PI * freq * t) * volume * envelope;
+    }
+    offset += numSamples;
+  }
+  
+  const buffer = new ArrayBuffer(44 + totalSamples * 2);
+  const view = new DataView(buffer);
+  
+  const writeString = (offset: number, str: string) => {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
+  };
+  
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + totalSamples * 2, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeString(36, 'data');
+  view.setUint32(40, totalSamples * 2, true);
+  
+  for (let i = 0; i < totalSamples; i++) {
+    const sample = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(44 + i * 2, sample * 0x7FFF, true);
+  }
+  
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  
+  return 'data:audio/wav;base64,' + btoa(binary);
+}
+
+const audioCache = new Map<SoundToneId, string>();
+
+function getOrCreateAudioUri(toneId: SoundToneId): string | null {
+  if (toneId === "vibrate_only") return null;
+  
+  if (audioCache.has(toneId)) {
+    return audioCache.get(toneId)!;
+  }
+  
+  const config = TONE_CONFIGS[toneId];
+  if (config.frequencies.length === 0) return null;
+  
+  const uri = generateWavDataUri(config.frequencies, config.durations, config.volume);
+  audioCache.set(toneId, uri);
+  return uri;
+}
+
 async function playWebTone(toneId: SoundToneId): Promise<void> {
   if (toneId === "vibrate_only") return;
   
@@ -150,6 +227,27 @@ async function playWebTone(toneId: SoundToneId): Promise<void> {
     osc.stop(startTime + config.durations[i]);
 
     startTime += config.durations[i] * 0.8;
+  }
+}
+
+async function playNativeTone(toneId: SoundToneId): Promise<void> {
+  if (toneId === "vibrate_only") return;
+  
+  try {
+    const uri = getOrCreateAudioUri(toneId);
+    if (!uri) return;
+    
+    const ExpoAudio = await import("expo-audio");
+    const player = ExpoAudio.createAudioPlayer(uri);
+    player.play();
+    
+    setTimeout(() => {
+      try {
+        player.release();
+      } catch {}
+    }, 3000);
+  } catch (error) {
+    console.log("Native audio playback failed:", error);
   }
 }
 
@@ -193,7 +291,10 @@ export async function playCompletionSound(toneId: SoundToneId, options: PlaySoun
     if (Platform.OS === "web") {
       await playWebTone(toneId);
     } else {
-      await playNativeHapticFeedback(toneId, hapticsEnabled);
+      await playNativeTone(toneId);
+      if (hapticsEnabled) {
+        await playNativeHapticFeedback(toneId, hapticsEnabled);
+      }
     }
   } catch (error) {
     console.log("Failed to play sound:", error);
@@ -217,21 +318,24 @@ export async function previewSound(toneId: SoundToneId, hapticsEnabled: boolean 
   
   if (Platform.OS === "web") {
     await playWebTone(toneId);
-  } else if (hapticsEnabled) {
-    try {
-      const config = TONE_CONFIGS[toneId];
-      const hapticStyle = config.hapticStyle === "light" 
-        ? Haptics.ImpactFeedbackStyle.Light 
-        : config.hapticStyle === "heavy" 
-          ? Haptics.ImpactFeedbackStyle.Heavy 
-          : Haptics.ImpactFeedbackStyle.Medium;
-      
-      for (let i = 0; i < Math.min(config.hapticCount, 3); i++) {
-        await Haptics.impactAsync(hapticStyle);
-        await new Promise(resolve => setTimeout(resolve, 80));
+  } else {
+    await playNativeTone(toneId);
+    if (hapticsEnabled) {
+      try {
+        const config = TONE_CONFIGS[toneId];
+        const hapticStyle = config.hapticStyle === "light" 
+          ? Haptics.ImpactFeedbackStyle.Light 
+          : config.hapticStyle === "heavy" 
+            ? Haptics.ImpactFeedbackStyle.Heavy 
+            : Haptics.ImpactFeedbackStyle.Medium;
+        
+        for (let i = 0; i < Math.min(config.hapticCount, 3); i++) {
+          await Haptics.impactAsync(hapticStyle);
+          await new Promise(resolve => setTimeout(resolve, 80));
+        }
+      } catch {
+        console.log("Haptic preview not available");
       }
-    } catch {
-      console.log("Haptic preview not available");
     }
   }
 }
