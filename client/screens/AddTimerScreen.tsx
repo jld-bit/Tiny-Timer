@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, ScrollView, View, Pressable, Platform, TextInput } from "react-native";
+import { StyleSheet, ScrollView, View, Pressable, Platform, TextInput, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -31,6 +31,10 @@ const activityImages: Record<string, any> = {
   cleanup: require("@/assets/activities/cleanup_activity_icon.png"),
   snack_time: require("@/assets/activities/snack_time_activity_icon.png"),
   reading: require("@/assets/activities/reading_time_activity_icon.png"),
+  exercise: require("@/assets/activities/playtime_activity_icon.png"),
+  music: require("@/assets/activities/playtime_activity_icon.png"),
+  art: require("@/assets/activities/homework_activity_icon.png"),
+  quiet_time: require("@/assets/activities/bedtime_activity_icon.png"),
 };
 
 const MINUTE_OPTIONS = [1, 2, 5, 10, 15, 20, 30, 45, 60];
@@ -69,11 +73,22 @@ function ActivityOption({
         animatedStyle,
       ]}
     >
-      <Feather
-        name={activity.icon as any}
-        size={28}
-        color={isSelected ? activityColor : theme.textSecondary}
-      />
+      {activityImages[activity.id] ? (
+        <Image
+          source={activityImages[activity.id]}
+          style={[
+            styles.activityImage,
+            { tintColor: isSelected ? activityColor : theme.textSecondary }
+          ]}
+          resizeMode="contain"
+        />
+      ) : (
+        <View style={[styles.activityIconFallback, { backgroundColor: activityColor + "30" }]}>
+          <ThemedText type="bodyMedium" style={{ color: activityColor }}>
+            {activity.name.charAt(0)}
+          </ThemedText>
+        </View>
+      )}
       <ThemedText
         type="small"
         style={[
@@ -345,6 +360,17 @@ const styles = StyleSheet.create({
   },
   activityName: {
     textAlign: "center",
+  },
+  activityImage: {
+    width: 32,
+    height: 32,
+  },
+  activityIconFallback: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   minutesGrid: {
     flexDirection: "row",
