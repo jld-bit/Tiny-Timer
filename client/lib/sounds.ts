@@ -1,6 +1,7 @@
 import { Platform } from "react-native";
 import * as Haptics from "expo-haptics";
 import * as FileSystem from "expo-file-system";
+import { Audio } from "expo-av";
 import { SoundToneId } from "./types";
 import { getApiUrl } from "./query-client";
 
@@ -203,52 +204,22 @@ async function playNativeTone(toneId: SoundToneId): Promise<void> {
   try {
     const audioPath = await ensureAudioCached(toneId);
     if (!audioPath) {
-      console.log("Audio file not available, using speech fallback");
-      await playSpeechFallback(toneId);
+      console.log("Audio file not available for tone:", toneId);
       return;
     }
     
-    const ExpoAudio = await import("expo-audio");
-    const player = ExpoAudio.createAudioPlayer({ uri: audioPath });
-    player.play();
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: audioPath },
+      { shouldPlay: true, volume: 1.0 }
+    );
     
-    setTimeout(() => {
-      try {
-        player.release();
-      } catch {}
-    }, 3000);
-  } catch (error) {
-    console.log("Native audio playback failed, using speech fallback:", error);
-    await playSpeechFallback(toneId);
-  }
-}
-
-async function playSpeechFallback(toneId: SoundToneId): Promise<void> {
-  try {
-    const Speech = await import("expo-speech");
-    
-    const messages: Record<SoundToneId, string> = {
-      vibrate_only: "",
-      chime: "Timer done!",
-      bell: "Ding ding! Time is up!",
-      xylophone: "Time is up!",
-      whistle: "Timer finished!",
-      celebration: "Yay! Great job!",
-      gentle: "Your timer is complete.",
-      playful: "All done!",
-      magic: "Timer complete!",
-      drumroll: "And... time!",
-      fanfare: "Well done!",
-    };
-    
-    const message = messages[toneId] || "Timer complete!";
-    Speech.speak(message, {
-      language: "en-US",
-      pitch: 1.1,
-      rate: 0.9,
+    sound.setOnPlaybackStatusUpdate((status: { isLoaded: boolean; didJustFinish?: boolean }) => {
+      if (status.isLoaded && status.didJustFinish) {
+        sound.unloadAsync();
+      }
     });
   } catch (error) {
-    console.log("Speech fallback failed:", error);
+    console.log("Native audio playback failed:", error);
   }
 }
 
