@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
   WithSpringConfig,
 } from "react-native-reanimated";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ProgressRing } from "@/components/ProgressRing";
 import { SwipeableRow } from "@/components/SwipeableRow";
@@ -90,21 +90,21 @@ export function TimerCard({ timer, onPress, onSwipeDelete }: TimerCardProps) {
           <View style={styles.statusRow}>
             {isCompleted ? (
               <View style={[styles.statusBadge, { backgroundColor: successColor + "20" }]}>
-                <Feather name="check" size={14} color={successColor} />
+                <Ionicons name="checkmark" size={14} color={successColor} />
                 <ThemedText style={[styles.statusText, { color: successColor }]}>
                   Complete
                 </ThemedText>
               </View>
             ) : isPaused ? (
               <View style={[styles.statusBadge, { backgroundColor: pausedColor + "20" }]}>
-                <Feather name="pause" size={14} color={pausedColor} />
+                <Ionicons name="pause" size={14} color={pausedColor} />
                 <ThemedText style={[styles.statusText, { color: pausedColor }]}>
                   Paused
                 </ThemedText>
               </View>
             ) : (
               <View style={[styles.statusBadge, { backgroundColor: activityColor + "20" }]}>
-                <Feather name="play" size={14} color={activityColor} />
+                <Ionicons name="play" size={14} color={activityColor} />
                 <ThemedText style={[styles.statusText, { color: activityColor }]}>
                   Running
                 </ThemedText>
@@ -112,7 +112,7 @@ export function TimerCard({ timer, onPress, onSwipeDelete }: TimerCardProps) {
             )}
           </View>
         </View>
-        <Feather name="chevron-right" size={24} color={theme.textSecondary} />
+        <Ionicons name="chevron-forward" size={24} color={theme.textSecondary} />
       </View>
     </AnimatedPressable>
   );
@@ -122,7 +122,7 @@ export function TimerCard({ timer, onPress, onSwipeDelete }: TimerCardProps) {
       <SwipeableRow
         onSwipeComplete={onSwipeDelete}
         actionLabel={isCompleted ? "Delete" : "Cancel"}
-        actionIcon={isCompleted ? "trash-2" : "x"}
+        actionIcon={isCompleted ? "trash-outline" : "close"}
         actionColor={isCompleted ? Colors.light.error : Colors.light.accent}
       >
         {cardContent}

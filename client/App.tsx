@@ -7,7 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/query-client";
@@ -24,7 +24,7 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-        await Font.loadAsync(Feather.font);
+        await Font.loadAsync(Ionicons.font);
       } catch (e) {
         console.warn(e);
       } finally {

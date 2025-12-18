@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, View, Pressable, Platform, TextInput } from "re
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { Button } from "@/components/Button";
@@ -69,7 +69,7 @@ function ActivityOption({
         animatedStyle,
       ]}
     >
-      <Feather
+      <Ionicons
         name={activity.icon as any}
         size={28}
         color={isSelected ? activityColor : theme.textSecondary}

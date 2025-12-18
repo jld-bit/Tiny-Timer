@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { StyleSheet, ScrollView, View, Pressable } from "react-native";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { SwipeableRow } from "@/components/SwipeableRow";
@@ -186,7 +186,7 @@ function HistoryCard({ entry, onDelete }: { entry: HistoryEntry; onDelete: () =>
   const cardContent = (
     <View style={[styles.historyCard, { backgroundColor: theme.backgroundDefault }]}>
       <View style={[styles.iconContainer, { backgroundColor: Colors.light.success + "20" }]}>
-        <Feather name="check-circle" size={24} color={Colors.light.success} />
+        <Ionicons name="checkmark-circle" size={24} color={Colors.light.success} />
       </View>
       <View style={styles.cardContent}>
         <ThemedText type="bodyMedium">{entry.activityName}</ThemedText>
@@ -201,7 +201,7 @@ function HistoryCard({ entry, onDelete }: { entry: HistoryEntry; onDelete: () =>
         </View>
       </View>
       <View style={[styles.badge, { backgroundColor: activityColor + "20" }]}>
-        <Feather name="star" size={16} color={activityColor} />
+        <Ionicons name="star" size={16} color={activityColor} />
       </View>
     </View>
   );

@@ -4,7 +4,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -68,7 +68,7 @@ function ControlButton({
         animatedStyle,
       ]}
     >
-      <Feather name={icon as any} size={size * 0.4} color={color} />
+      <Ionicons name={icon as any} size={size * 0.4} color={color} />
     </AnimatedPressable>
   );
 }
@@ -105,7 +105,7 @@ export default function TimerDetailScreen() {
           }}
           style={styles.headerButton}
         >
-          <Feather name="trash-2" size={22} color={Colors.light.error} />
+          <Ionicons name="trash-outline" size={22} color={Colors.light.error} />
         </Pressable>
       ),
     });
@@ -137,7 +137,7 @@ export default function TimerDetailScreen() {
       <View style={[styles.content, { paddingTop: insets.top + 80 }]}>
         <View style={styles.activityHeader}>
           <View style={[styles.activityIcon, { backgroundColor: activityColor + "20" }]}>
-            <Feather name="clock" size={28} color={activityColor} />
+            <Ionicons name="timer-outline" size={28} color={activityColor} />
           </View>
           <ThemedText type="h2">{timer.activityName}</ThemedText>
         </View>
@@ -155,11 +155,11 @@ export default function TimerDetailScreen() {
             </ThemedText>
             {isCompleted ? (
               <View style={[styles.completeBadge, { backgroundColor: Colors.light.success }]}>
-                <Feather name="check" size={20} color="#FFFFFF" />
+                <Ionicons name="checkmark" size={20} color="#FFFFFF" />
                 <ThemedText style={styles.completeText}>Complete!</ThemedText>
               </View>
             ) : isPaused ? (
-              <ThemedText type="bodyMedium" style={{ color: Colors.light.warning }}>
+              <ThemedText type="bodyMedium" style={{ color: Colors.light.accent }}>
                 Paused
               </ThemedText>
             ) : (
@@ -184,7 +184,7 @@ export default function TimerDetailScreen() {
         ]}
       >
         <ControlButton
-          icon="rotate-ccw"
+          icon="refresh-outline"
           color={theme.text}
           backgroundColor={theme.backgroundDefault}
           onPress={() => resetTimer(timer.id)}
@@ -193,7 +193,7 @@ export default function TimerDetailScreen() {
         
         {isCompleted ? (
           <ControlButton
-            icon="check"
+            icon="checkmark"
             color="#FFFFFF"
             backgroundColor={Colors.light.success}
             onPress={() => navigation.goBack()}
@@ -210,7 +210,7 @@ export default function TimerDetailScreen() {
         )}
 
         <ControlButton
-          icon="x"
+          icon="close"
           color={Colors.light.error}
           backgroundColor={Colors.light.error + "20"}
           onPress={() => {

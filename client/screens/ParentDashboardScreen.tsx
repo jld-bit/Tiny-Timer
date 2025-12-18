@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, ScrollView, View, Pressable, TextInput, Alert, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { Button } from "@/components/Button";
@@ -18,10 +18,10 @@ import Animated, {
 } from "react-native-reanimated";
 
 const AVAILABLE_ICONS = [
-  "heart", "music", "camera", "sun", "cloud", "umbrella", "gift", "flag",
-  "bell", "target", "compass", "feather", "scissors", "tool", "watch", "wifi",
-  "headphones", "mic", "radio", "tv", "smartphone", "tablet", "speaker", "battery",
-  "activity", "award", "briefcase", "calendar", "folder", "file", "edit", "pen-tool",
+  "heart-outline", "musical-notes-outline", "camera-outline", "sunny-outline", "cloud-outline", "umbrella-outline", "gift-outline", "flag-outline",
+  "notifications-outline", "disc-outline", "compass-outline", "leaf-outline", "cut-outline", "construct-outline", "watch-outline", "wifi-outline",
+  "headset-outline", "mic-outline", "radio-outline", "tv-outline", "phone-portrait-outline", "tablet-portrait-outline", "volume-high-outline", "battery-full-outline",
+  "fitness-outline", "ribbon-outline", "briefcase-outline", "calendar-outline", "folder-outline", "document-outline", "create-outline", "brush-outline",
 ];
 
 const DEFAULT_DURATIONS = [1, 2, 5, 10, 15, 20, 30, 45, 60];
@@ -59,7 +59,7 @@ function IconButton({
         animatedStyle,
       ]}
     >
-      <Feather
+      <Ionicons
         name={icon as any}
         size={22}
         color={isSelected ? Colors.light.primary : theme.textSecondary}
@@ -119,7 +119,7 @@ function CustomActivityCard({
   return (
     <View style={[styles.customActivityCard, { backgroundColor: theme.backgroundDefault }]}>
       <View style={[styles.activityIconContainer, { backgroundColor: Colors.light.primary + "15" }]}>
-        <Feather name={activity.icon as any} size={20} color={Colors.light.primary} />
+        <Ionicons name={activity.icon as any} size={20} color={Colors.light.primary} />
       </View>
       <View style={styles.activityInfo}>
         <ThemedText type="bodyMedium">{activity.name}</ThemedText>
@@ -139,7 +139,7 @@ function CustomActivityCard({
           { opacity: pressed ? 0.7 : 1, backgroundColor: Colors.light.error + "15" },
         ]}
       >
-        <Feather name="trash-2" size={18} color={Colors.light.error} />
+        <Ionicons name="trash-outline" size={18} color={Colors.light.error} />
       </Pressable>
     </View>
   );
@@ -234,7 +234,7 @@ export default function ParentDashboardScreen() {
             </View>
           ) : (
             <View style={[styles.emptyState, { backgroundColor: theme.backgroundDefault }]}>
-              <Feather name="plus-circle" size={40} color={theme.textSecondary} />
+              <Ionicons name="add-circle-outline" size={40} color={theme.textSecondary} />
               <ThemedText type="body" style={{ color: theme.textSecondary, textAlign: "center" }}>
                 No custom activities yet.{"\n"}Create one below!
               </ThemedText>
@@ -250,7 +250,7 @@ export default function ParentDashboardScreen() {
                 onPress={() => setShowForm(false)}
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
               >
-                <Feather name="x" size={24} color={theme.textSecondary} />
+                <Ionicons name="close" size={24} color={theme.textSecondary} />
               </Pressable>
             </View>
 
@@ -351,7 +351,7 @@ export default function ParentDashboardScreen() {
               { opacity: pressed ? 0.9 : 1, backgroundColor: Colors.light.primary },
             ]}
           >
-            <Feather name="plus" size={20} color="#FFFFFF" />
+            <Ionicons name="add" size={20} color="#FFFFFF" />
             <ThemedText type="bodyMedium" style={{ color: "#FFFFFF" }}>
               Create New Activity
             </ThemedText>
@@ -360,7 +360,7 @@ export default function ParentDashboardScreen() {
 
         <View style={styles.tipSection}>
           <View style={[styles.tipCard, { backgroundColor: Colors.light.accent + "20" }]}>
-            <Feather name="info" size={20} color={Colors.light.primary} />
+            <Ionicons name="information-circle-outline" size={20} color={Colors.light.primary} />
             <View style={styles.tipContent}>
               <ThemedText type="bodyMedium">Parent Tip</ThemedText>
               <ThemedText type="caption" style={{ color: theme.textSecondary }}>

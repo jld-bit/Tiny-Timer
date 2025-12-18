@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
   WithSpringConfig,
 } from "react-native-reanimated";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius, Colors, ActivityColors } from "@/constants/theme";
@@ -60,7 +60,7 @@ export function ActivityCard({ activity, onPress, image }: ActivityCardProps) {
         {image ? (
           <Image source={image} style={styles.image} resizeMode="contain" />
         ) : (
-          <Feather name={activity.icon as any} size={32} color={activityColor} />
+          <Ionicons name={activity.icon as any} size={32} color={activityColor} />
         )}
       </View>
       <ThemedText type="bodyMedium" style={styles.name} numberOfLines={1}>

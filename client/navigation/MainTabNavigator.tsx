@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Platform, StyleSheet, View } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
@@ -63,7 +63,7 @@ export default function MainTabNavigator() {
         options={{
           title: "Timers",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="clock" size={size} color={color} />
+            <Ionicons name="timer-outline" size={size} color={color} />
           ),
         }}
       />
@@ -73,7 +73,7 @@ export default function MainTabNavigator() {
         options={{
           title: "Add",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="plus-circle" size={size} color={color} />
+            <Ionicons name="add-circle-outline" size={size} color={color} />
           ),
         }}
         listeners={({ navigation }) => ({
@@ -89,7 +89,7 @@ export default function MainTabNavigator() {
         options={{
           title: "Badges",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="award" size={size} color={color} />
+            <Ionicons name="ribbon-outline" size={size} color={color} />
           ),
         }}
       />
@@ -99,7 +99,7 @@ export default function MainTabNavigator() {
         options={{
           title: "History",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="check-circle" size={size} color={color} />
+            <Ionicons name="time-outline" size={size} color={color} />
           ),
         }}
       />

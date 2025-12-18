@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { StyleSheet, ScrollView, View, Modal, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -45,7 +45,7 @@ function BadgeCard({ badge, isEarned }: { badge: Badge; isEarned: boolean }) {
           },
         ]}
       >
-        <Feather
+        <Ionicons
           name={badge.icon as any}
           size={28}
           color={isEarned ? "#FFFFFF" : theme.textSecondary}
@@ -63,7 +63,7 @@ function BadgeCard({ badge, isEarned }: { badge: Badge; isEarned: boolean }) {
       </ThemedText>
       {isEarned ? (
         <View style={[styles.earnedBadge, { backgroundColor: Colors.light.success }]}>
-          <Feather name="check" size={12} color="#FFFFFF" />
+          <Ionicons name="checkmark" size={12} color="#FFFFFF" />
         </View>
       ) : null}
     </Animated.View>
@@ -116,7 +116,7 @@ function NewBadgeModal({
               animatedStyle,
             ]}
           >
-            <Feather name={badge.icon as any} size={48} color="#FFFFFF" />
+            <Ionicons name={badge.icon as any} size={48} color="#FFFFFF" />
           </Animated.View>
           <ThemedText type="h2" style={styles.modalTitle}>
             New Badge!
@@ -159,7 +159,7 @@ export default function BadgesScreen() {
       >
         <View style={styles.statsRow}>
           <View style={[styles.statCard, { backgroundColor: Colors.light.accent + "20" }]}>
-            <Feather name="award" size={24} color={Colors.light.accent} />
+            <Ionicons name="ribbon-outline" size={24} color={Colors.light.accent} />
             <ThemedText type="h2" style={{ color: Colors.light.accent }}>
               {progress.earnedBadges.length}
             </ThemedText>
@@ -168,7 +168,7 @@ export default function BadgesScreen() {
             </ThemedText>
           </View>
           <View style={[styles.statCard, { backgroundColor: Colors.light.primary + "20" }]}>
-            <Feather name="zap" size={24} color={Colors.light.primary} />
+            <Ionicons name="flash-outline" size={24} color={Colors.light.primary} />
             <ThemedText type="h2" style={{ color: Colors.light.primary }}>
               {progress.currentStreak}
             </ThemedText>
