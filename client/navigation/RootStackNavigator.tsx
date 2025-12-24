@@ -51,7 +51,7 @@ export default function RootStackNavigator() {
         name="AddTimerModal"
         component={AddTimerScreen}
         options={({ navigation }) => ({
-          presentation: "modal",
+          presentation: "fullScreenModal",
           headerTitle: "New Timer",
           headerLeft: () => (
             <CloseButton 
