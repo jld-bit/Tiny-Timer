@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { StyleSheet, ScrollView, View, Pressable } from "react-native";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { SwipeableRow } from "@/components/SwipeableRow";
@@ -11,6 +10,7 @@ import { useTimers } from "@/lib/timerContext";
 import { storage } from "@/lib/storage";
 import { HistoryEntry } from "@/lib/types";
 import { Spacing, Colors, BorderRadius, ActivityColors } from "@/constants/theme";
+import { CheckCircleIcon, StarIcon, ClockIcon, FilterIcon } from "@/components/Icons";
 
 type TimeRange = "today" | "week" | "month" | "all";
 
@@ -186,7 +186,7 @@ function HistoryCard({ entry, onDelete }: { entry: HistoryEntry; onDelete: () =>
   const cardContent = (
     <View style={[styles.historyCard, { backgroundColor: theme.backgroundDefault }]}>
       <View style={[styles.iconContainer, { backgroundColor: Colors.light.success + "20" }]}>
-        <Feather name="check-circle" size={24} color={Colors.light.success} />
+        <CheckCircleIcon size={24} color={Colors.light.success} />
       </View>
       <View style={styles.cardContent}>
         <ThemedText type="bodyMedium">{entry.activityName}</ThemedText>
@@ -201,7 +201,7 @@ function HistoryCard({ entry, onDelete }: { entry: HistoryEntry; onDelete: () =>
         </View>
       </View>
       <View style={[styles.badge, { backgroundColor: activityColor + "20" }]}>
-        <Feather name="star" size={16} color={activityColor} />
+        <StarIcon size={16} color={activityColor} />
       </View>
     </View>
   );
@@ -384,7 +384,7 @@ export default function HistoryScreen() {
         {history.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={[styles.emptyIcon, { backgroundColor: theme.backgroundDefault }]}>
-              <Feather name="clock" size={48} color={theme.textSecondary} />
+              <ClockIcon size={48} color={theme.textSecondary} />
             </View>
             <ThemedText type="h3" style={styles.emptyTitle}>
               No completed timers yet
@@ -396,7 +396,7 @@ export default function HistoryScreen() {
         ) : filteredHistory.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={[styles.emptyIcon, { backgroundColor: theme.backgroundDefault }]}>
-              <Feather name="filter" size={48} color={theme.textSecondary} />
+              <FilterIcon size={48} color={theme.textSecondary} />
             </View>
             <ThemedText type="h3" style={styles.emptyTitle}>
               No activity in this period

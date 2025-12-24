@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { StyleSheet, ScrollView, View, Modal, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -17,6 +16,25 @@ import { useTheme } from "@/hooks/useTheme";
 import { useTimers } from "@/lib/timerContext";
 import { BADGES, Badge } from "@/lib/types";
 import { Spacing, Colors, BorderRadius } from "@/constants/theme";
+import {
+  AwardIcon,
+  ZapIcon,
+  CheckIcon,
+  BadgeIconMap,
+  StarIcon,
+  ClockIcon,
+  HeartIcon,
+  GiftIcon,
+  SmileIcon,
+} from "@/components/Icons";
+
+function getBadgeIcon(iconName: string, size: number, color: string) {
+  const IconComponent = BadgeIconMap[iconName];
+  if (IconComponent) {
+    return <IconComponent size={size} color={color} />;
+  }
+  return <AwardIcon size={size} color={color} />;
+}
 
 function BadgeCard({ badge, isEarned }: { badge: Badge; isEarned: boolean }) {
   const { theme } = useTheme();
@@ -45,11 +63,7 @@ function BadgeCard({ badge, isEarned }: { badge: Badge; isEarned: boolean }) {
           },
         ]}
       >
-        <Feather
-          name={badge.icon as any}
-          size={28}
-          color={isEarned ? "#FFFFFF" : theme.textSecondary}
-        />
+        {getBadgeIcon(badge.icon, 28, isEarned ? "#FFFFFF" : theme.textSecondary)}
       </View>
       <ThemedText type="bodyMedium" style={styles.badgeName}>
         {badge.name}
@@ -63,7 +77,7 @@ function BadgeCard({ badge, isEarned }: { badge: Badge; isEarned: boolean }) {
       </ThemedText>
       {isEarned ? (
         <View style={[styles.earnedBadge, { backgroundColor: Colors.light.success }]}>
-          <Feather name="check" size={12} color="#FFFFFF" />
+          <CheckIcon size={12} color="#FFFFFF" />
         </View>
       ) : null}
     </Animated.View>
@@ -116,7 +130,7 @@ function NewBadgeModal({
               animatedStyle,
             ]}
           >
-            <Feather name={badge.icon as any} size={48} color="#FFFFFF" />
+            {getBadgeIcon(badge.icon, 48, "#FFFFFF")}
           </Animated.View>
           <ThemedText type="h2" style={styles.modalTitle}>
             New Badge!
@@ -159,7 +173,7 @@ export default function BadgesScreen() {
       >
         <View style={styles.statsRow}>
           <View style={[styles.statCard, { backgroundColor: Colors.light.accent + "20" }]}>
-            <Feather name="award" size={24} color={Colors.light.accent} />
+            <AwardIcon size={24} color={Colors.light.accent} />
             <ThemedText type="h2" style={{ color: Colors.light.accent }}>
               {progress.earnedBadges.length}
             </ThemedText>
@@ -168,7 +182,7 @@ export default function BadgesScreen() {
             </ThemedText>
           </View>
           <View style={[styles.statCard, { backgroundColor: Colors.light.primary + "20" }]}>
-            <Feather name="zap" size={24} color={Colors.light.primary} />
+            <ZapIcon size={24} color={Colors.light.primary} />
             <ThemedText type="h2" style={{ color: Colors.light.primary }}>
               {progress.currentStreak}
             </ThemedText>

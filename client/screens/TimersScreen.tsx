@@ -4,7 +4,6 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { TimerCard } from "@/components/TimerCard";
@@ -16,6 +15,7 @@ import { useTimers } from "@/lib/timerContext";
 import { ACTIVITIES, Activity } from "@/lib/types";
 import { Spacing, Colors, BorderRadius } from "@/constants/theme";
 import { RootStackParamList } from "@/navigation/RootStackNavigator";
+import { SettingsIcon } from "@/components/Icons";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -45,7 +45,7 @@ export default function TimersScreen() {
           onPress={() => navigation.navigate("Settings")}
           style={styles.headerButton}
         >
-          <Feather name="settings" size={22} color={theme.text} />
+          <SettingsIcon size={22} color={theme.text} />
         </Pressable>
       ),
     });

@@ -3,7 +3,6 @@ import { StyleSheet, ScrollView, View, Switch, Pressable, Platform } from "react
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
@@ -13,8 +12,46 @@ import { Spacing, Colors, BorderRadius } from "@/constants/theme";
 import { THEMES, ThemeType, SOUND_TONES, SoundToneId } from "@/lib/types";
 import { previewSound } from "@/lib/sounds";
 import { RootStackParamList } from "@/navigation/RootStackNavigator";
+import {
+  UsersIcon,
+  VolumeIcon,
+  SmartphoneIcon,
+  TrashIcon,
+  CloseIcon,
+  InfoIcon,
+  ChevronRightIcon,
+  CheckIcon,
+  SoundIconMap,
+} from "@/components/Icons";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+function getSettingsIcon(iconName: string, size: number, color: string) {
+  switch (iconName) {
+    case "people-outline":
+      return <UsersIcon size={size} color={color} />;
+    case "volume-high-outline":
+      return <VolumeIcon size={size} color={color} />;
+    case "phone-portrait-outline":
+      return <SmartphoneIcon size={size} color={color} />;
+    case "trash-outline":
+      return <TrashIcon size={size} color={color} />;
+    case "close-circle-outline":
+      return <CloseIcon size={size} color={color} />;
+    case "info":
+      return <InfoIcon size={size} color={color} />;
+    default:
+      return <InfoIcon size={size} color={color} />;
+  }
+}
+
+function getSoundIcon(iconName: string, size: number, color: string) {
+  const IconComponent = SoundIconMap[iconName];
+  if (IconComponent) {
+    return <IconComponent size={size} color={color} />;
+  }
+  return <VolumeIcon size={size} color={color} />;
+}
 
 function SettingRow({
   icon,
@@ -38,7 +75,7 @@ function SettingRow({
   const content = (
     <View style={[styles.settingRow, { backgroundColor: theme.backgroundDefault }]}>
       <View style={[styles.iconContainer, { backgroundColor: Colors.light.primary + "15" }]}>
-        <Feather name={icon as any} size={20} color={Colors.light.primary} />
+        {getSettingsIcon(icon, 20, Colors.light.primary)}
       </View>
       <View style={styles.settingContent}>
         <ThemedText type="bodyMedium">{title}</ThemedText>
@@ -57,7 +94,7 @@ function SettingRow({
           ios_backgroundColor={theme.backgroundTertiary}
         />
       ) : (
-        <Feather name="chevron-right" size={20} color={theme.textSecondary} />
+        <ChevronRightIcon size={20} color={theme.textSecondary} />
       )}
     </View>
   );
@@ -114,7 +151,7 @@ function ThemeCard({
       </ThemedText>
       {isSelected ? (
         <View style={[styles.checkBadge, { backgroundColor: themeConfig.colors.primary }]}>
-          <Feather name="check" size={12} color="#FFFFFF" />
+          <CheckIcon size={12} color="#FFFFFF" />
         </View>
       ) : null}
     </Pressable>
@@ -154,13 +191,13 @@ function SoundToneCard({
       ]}
     >
       <View style={[styles.soundIconContainer, { backgroundColor: isSelected ? Colors.light.primary : theme.backgroundTertiary }]}>
-        <Feather name={tone.icon as any} size={16} color={isSelected ? "#FFFFFF" : theme.textSecondary} />
+        {getSoundIcon(tone.icon, 16, isSelected ? "#FFFFFF" : theme.textSecondary)}
       </View>
       <ThemedText type="caption" style={{ color: isSelected ? Colors.light.primary : theme.text }}>
         {tone.name}
       </ThemedText>
       {isSelected ? (
-        <Feather name="check" size={14} color={Colors.light.primary} />
+        <CheckIcon size={14} color={Colors.light.primary} />
       ) : null}
     </Pressable>
   );
@@ -296,7 +333,7 @@ export default function SettingsScreen() {
           <View style={styles.sectionContent}>
             <View style={[styles.settingRow, { backgroundColor: theme.backgroundDefault }]}>
               <View style={[styles.iconContainer, { backgroundColor: Colors.light.secondary + "15" }]}>
-                <Feather name="info" size={20} color={Colors.light.secondary} />
+                <InfoIcon size={20} color={Colors.light.secondary} />
               </View>
               <View style={styles.settingContent}>
                 <ThemedText type="bodyMedium">Kids Timer</ThemedText>

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { StyleSheet, ScrollView, View, Pressable, TextInput, Alert, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { Button } from "@/components/Button";
@@ -16,17 +15,65 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import {
+  HeartIcon,
+  MusicIcon,
+  CameraIcon,
+  SunIcon,
+  CloudIcon,
+  UmbrellaIcon,
+  GiftIcon,
+  FlagIcon,
+  BellIcon,
+  DiscIcon,
+  CompassIcon,
+  LeafIcon,
+  ScissorsIcon,
+  WrenchIcon,
+  WatchIcon,
+  WifiIcon,
+  HeadphonesIcon,
+  MicIcon,
+  RadioIcon,
+  TvIcon,
+  SmartphoneIcon,
+  TabletIcon,
+  VolumeIcon,
+  BatteryIcon,
+  ActivityIcon,
+  RibbonIcon,
+  BriefcaseIcon,
+  CalendarIcon,
+  FolderIcon,
+  FileIcon,
+  EditIcon,
+  BrushIcon,
+  TrashIcon,
+  CloseIcon,
+  PlusCircleIcon,
+  PlusIcon,
+  InfoIcon,
+  CustomActivityIconMap,
+} from "@/components/Icons";
 
 const AVAILABLE_ICONS = [
-  "heart-outline", "musical-notes-outline", "camera-outline", "sunny-outline", "cloud-outline", "umbrella-outline", "gift-outline", "flag-outline",
-  "notifications-outline", "disc-outline", "compass-outline", "leaf-outline", "cut-outline", "construct-outline", "watch-outline", "wifi-outline",
-  "headset-outline", "mic-outline", "radio-outline", "tv-outline", "phone-portrait-outline", "tablet-portrait-outline", "volume-high-outline", "battery-full-outline",
-  "fitness-outline", "ribbon-outline", "briefcase-outline", "calendar-outline", "folder-outline", "document-outline", "create-outline", "brush-outline",
+  "heart", "music", "camera", "sun", "cloud", "umbrella", "gift", "flag",
+  "bell", "disc", "compass", "leaf", "scissors", "wrench", "watch", "wifi",
+  "headphones", "mic", "radio", "tv", "smartphone", "tablet", "volume", "battery",
+  "activity", "ribbon", "briefcase", "calendar", "folder", "file", "edit", "brush",
 ];
 
 const DEFAULT_DURATIONS = [1, 2, 5, 10, 15, 20, 30, 45, 60];
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+function getIconComponent(iconName: string, size: number, color: string) {
+  const IconComponent = CustomActivityIconMap[iconName];
+  if (IconComponent) {
+    return <IconComponent size={size} color={color} />;
+  }
+  return <HeartIcon size={size} color={color} />;
+}
 
 function IconButton({
   icon,
@@ -59,11 +106,7 @@ function IconButton({
         animatedStyle,
       ]}
     >
-      <Feather
-        name={icon as any}
-        size={22}
-        color={isSelected ? Colors.light.primary : theme.textSecondary}
-      />
+      {getIconComponent(icon, 22, isSelected ? Colors.light.primary : theme.textSecondary)}
     </AnimatedPressable>
   );
 }
@@ -119,7 +162,7 @@ function CustomActivityCard({
   return (
     <View style={[styles.customActivityCard, { backgroundColor: theme.backgroundDefault }]}>
       <View style={[styles.activityIconContainer, { backgroundColor: Colors.light.primary + "15" }]}>
-        <Feather name={activity.icon as any} size={20} color={Colors.light.primary} />
+        {getIconComponent(activity.icon, 20, Colors.light.primary)}
       </View>
       <View style={styles.activityInfo}>
         <ThemedText type="bodyMedium">{activity.name}</ThemedText>
@@ -139,7 +182,7 @@ function CustomActivityCard({
           { opacity: pressed ? 0.7 : 1, backgroundColor: Colors.light.error + "15" },
         ]}
       >
-        <Feather name="trash-2" size={18} color={Colors.light.error} />
+        <TrashIcon size={18} color={Colors.light.error} />
       </Pressable>
     </View>
   );
@@ -234,7 +277,7 @@ export default function ParentDashboardScreen() {
             </View>
           ) : (
             <View style={[styles.emptyState, { backgroundColor: theme.backgroundDefault }]}>
-              <Feather name="plus-circle" size={40} color={theme.textSecondary} />
+              <PlusCircleIcon size={40} color={theme.textSecondary} />
               <ThemedText type="body" style={{ color: theme.textSecondary, textAlign: "center" }}>
                 No custom activities yet.{"\n"}Create one below!
               </ThemedText>
@@ -250,7 +293,7 @@ export default function ParentDashboardScreen() {
                 onPress={() => setShowForm(false)}
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
               >
-                <Feather name="x" size={24} color={theme.textSecondary} />
+                <CloseIcon size={24} color={theme.textSecondary} />
               </Pressable>
             </View>
 
@@ -351,7 +394,7 @@ export default function ParentDashboardScreen() {
               { opacity: pressed ? 0.9 : 1, backgroundColor: Colors.light.primary },
             ]}
           >
-            <Feather name="plus" size={20} color="#FFFFFF" />
+            <PlusIcon size={20} color="#FFFFFF" />
             <ThemedText type="bodyMedium" style={{ color: "#FFFFFF" }}>
               Create New Activity
             </ThemedText>
@@ -360,7 +403,7 @@ export default function ParentDashboardScreen() {
 
         <View style={styles.tipSection}>
           <View style={[styles.tipCard, { backgroundColor: Colors.light.accent + "20" }]}>
-            <Feather name="info" size={20} color={Colors.light.primary} />
+            <InfoIcon size={20} color={Colors.light.primary} />
             <View style={styles.tipContent}>
               <ThemedText type="bodyMedium">Parent Tip</ThemedText>
               <ThemedText type="caption" style={{ color: theme.textSecondary }}>

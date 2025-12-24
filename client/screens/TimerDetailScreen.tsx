@@ -4,7 +4,6 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Feather } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -21,6 +20,15 @@ import { useTheme } from "@/hooks/useTheme";
 import { useTimers } from "@/lib/timerContext";
 import { Spacing, Colors, BorderRadius, ActivityColors } from "@/constants/theme";
 import { RootStackParamList } from "@/navigation/RootStackNavigator";
+import {
+  ClockIcon,
+  TrashIcon,
+  RefreshIcon,
+  CheckIcon,
+  PlayIcon,
+  PauseIcon,
+  CloseIcon,
+} from "@/components/Icons";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type DetailRouteProp = RouteProp<RootStackParamList, "TimerDetail">;
@@ -40,7 +48,7 @@ function ControlButton({
   onPress,
   size = 60,
 }: {
-  icon: string;
+  icon: "refresh" | "check" | "play" | "pause" | "close";
   color: string;
   backgroundColor: string;
   onPress: () => void;
@@ -51,6 +59,23 @@ function ControlButton({
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
+
+  const iconSize = size * 0.4;
+
+  const renderIcon = () => {
+    switch (icon) {
+      case "refresh":
+        return <RefreshIcon size={iconSize} color={color} />;
+      case "check":
+        return <CheckIcon size={iconSize} color={color} />;
+      case "play":
+        return <PlayIcon size={iconSize} color={color} />;
+      case "pause":
+        return <PauseIcon size={iconSize} color={color} />;
+      case "close":
+        return <CloseIcon size={iconSize} color={color} />;
+    }
+  };
 
   return (
     <AnimatedPressable
@@ -68,7 +93,7 @@ function ControlButton({
         animatedStyle,
       ]}
     >
-      <Feather name={icon as any} size={size * 0.4} color={color} />
+      {renderIcon()}
     </AnimatedPressable>
   );
 }
@@ -105,7 +130,7 @@ export default function TimerDetailScreen() {
           }}
           style={styles.headerButton}
         >
-          <Feather name="trash-2" size={22} color={Colors.light.error} />
+          <TrashIcon size={22} color={Colors.light.error} />
         </Pressable>
       ),
     });
@@ -137,7 +162,7 @@ export default function TimerDetailScreen() {
       <View style={[styles.content, { paddingTop: insets.top + 80 }]}>
         <View style={styles.activityHeader}>
           <View style={[styles.activityIcon, { backgroundColor: activityColor + "20" }]}>
-            <Feather name="clock" size={28} color={activityColor} />
+            <ClockIcon size={28} color={activityColor} />
           </View>
           <ThemedText type="h2">{timer.activityName}</ThemedText>
         </View>
@@ -155,7 +180,7 @@ export default function TimerDetailScreen() {
             </ThemedText>
             {isCompleted ? (
               <View style={[styles.completeBadge, { backgroundColor: Colors.light.success }]}>
-                <Feather name="check" size={20} color="#FFFFFF" />
+                <CheckIcon size={20} color="#FFFFFF" />
                 <ThemedText style={styles.completeText}>Complete!</ThemedText>
               </View>
             ) : isPaused ? (
@@ -184,7 +209,7 @@ export default function TimerDetailScreen() {
         ]}
       >
         <ControlButton
-          icon="refresh-outline"
+          icon="refresh"
           color={theme.text}
           backgroundColor={theme.backgroundDefault}
           onPress={() => resetTimer(timer.id)}
@@ -193,7 +218,7 @@ export default function TimerDetailScreen() {
         
         {isCompleted ? (
           <ControlButton
-            icon="checkmark"
+            icon="check"
             color="#FFFFFF"
             backgroundColor={Colors.light.success}
             onPress={() => navigation.goBack()}
