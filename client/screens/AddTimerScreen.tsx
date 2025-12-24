@@ -214,10 +214,7 @@ function ActivityOption({
       {activityImages[activity.id] ? (
         <Image
           source={activityImages[activity.id]}
-          style={[
-            styles.activityImage,
-            { tintColor: isSelected ? activityColor : theme.textSecondary }
-          ]}
+          style={styles.activityImage}
           resizeMode="contain"
         />
       ) : (

@@ -6,8 +6,8 @@ import Animated, {
   withSpring,
   WithSpringConfig,
 } from "react-native-reanimated";
-import { Feather } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
+import { ActivityIconMap } from "@/components/Icons";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius, Colors, ActivityColors } from "@/constants/theme";
 import { Activity } from "@/lib/types";
@@ -44,6 +44,7 @@ export function ActivityCard({ activity, onPress, image }: ActivityCardProps) {
   };
 
   const activityColor = ActivityColors[activity.id] || Colors.light.primary;
+  const IconComponent = ActivityIconMap[activity.icon] || ActivityIconMap.clock;
 
   return (
     <AnimatedPressable
@@ -60,7 +61,7 @@ export function ActivityCard({ activity, onPress, image }: ActivityCardProps) {
         {image ? (
           <Image source={image} style={styles.image} resizeMode="contain" />
         ) : (
-          <Feather name={activity.icon as any} size={32} color={activityColor} />
+          <IconComponent size={32} color={activityColor} />
         )}
       </View>
       <ThemedText type="bodyMedium" style={styles.name} numberOfLines={1}>

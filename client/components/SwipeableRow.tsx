@@ -9,7 +9,7 @@ import Animated, {
   runOnJS,
   WithSpringConfig,
 } from "react-native-reanimated";
-import { Feather } from "@expo/vector-icons";
+import { TrashIcon, CloseIcon } from "@/components/Icons";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors, Spacing, BorderRadius } from "@/constants/theme";
 
@@ -17,7 +17,7 @@ interface SwipeableRowProps {
   children: React.ReactNode;
   onSwipeComplete: () => void;
   actionLabel?: string;
-  actionIcon?: keyof typeof Feather.glyphMap;
+  actionIcon?: string;
   actionColor?: string;
 }
 
@@ -81,10 +81,12 @@ export function SwipeableRow({
     };
   });
 
+  const IconComponent = actionIcon === "close" ? CloseIcon : TrashIcon;
+
   return (
     <Animated.View style={[styles.container, containerStyle]}>
       <Animated.View style={[styles.actionContainer, { backgroundColor: actionColor }, actionStyle]}>
-        <Feather name={actionIcon} size={20} color="#FFFFFF" />
+        <IconComponent size={20} color="#FFFFFF" />
         <ThemedText style={styles.actionLabel}>{actionLabel}</ThemedText>
       </Animated.View>
       <GestureDetector gesture={panGesture}>
