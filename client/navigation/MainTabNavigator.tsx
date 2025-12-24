@@ -1,13 +1,51 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { Platform, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View, Text } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
 import { Colors, Spacing } from "@/constants/theme";
 import TimersScreen from "@/screens/TimersScreen";
 import HistoryScreen from "@/screens/HistoryScreen";
 import BadgesScreen from "@/screens/BadgesScreen";
+import Svg, { Circle, Path, Rect, Line } from "react-native-svg";
+
+function ClockIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="2" />
+      <Path d="M12 6v6l4 2" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function PlusCircleIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="2" />
+      <Line x1="12" y1="8" x2="12" y2="16" stroke={color} strokeWidth="2" strokeLinecap="round" />
+      <Line x1="8" y1="12" x2="16" y2="12" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function AwardIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="8" r="6" stroke={color} strokeWidth="2" />
+      <Path d="M9 13.5L7 22l5-3 5 3-2-8.5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+function HistoryIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M3 3v5h5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M12 7v5l4 2" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </Svg>
+  );
+}
 
 export type MainTabParamList = {
   TimersTab: undefined;
@@ -63,7 +101,7 @@ export default function MainTabNavigator() {
         options={{
           title: "Timers",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="clock" size={size} color={color} />
+            <ClockIcon size={size} color={color} />
           ),
         }}
       />
@@ -73,7 +111,7 @@ export default function MainTabNavigator() {
         options={{
           title: "Add",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="plus-circle" size={size} color={color} />
+            <PlusCircleIcon size={size} color={color} />
           ),
         }}
         listeners={({ navigation }) => ({
@@ -89,7 +127,7 @@ export default function MainTabNavigator() {
         options={{
           title: "Badges",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="award" size={size} color={color} />
+            <AwardIcon size={size} color={color} />
           ),
         }}
       />
@@ -99,7 +137,7 @@ export default function MainTabNavigator() {
         options={{
           title: "History",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="clock" size={size} color={color} />
+            <HistoryIcon size={size} color={color} />
           ),
         }}
       />
