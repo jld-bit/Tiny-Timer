@@ -308,15 +308,23 @@ export default function AddTimerScreen() {
   
   const selectedActivityColor = ActivityColors[selectedActivity.id] || Colors.light.primary;
 
+  const handleClose = React.useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
-        <Pressable onPress={() => navigation.goBack()} style={styles.headerButton}>
+        <Pressable 
+          onPress={handleClose} 
+          style={styles.headerButton}
+          hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+        >
           <CloseIcon size={24} color={theme.text} />
         </Pressable>
       ),
     });
-  }, [navigation, theme]);
+  }, [navigation, theme, handleClose]);
 
   const handleActivitySelect = (activity: Activity) => {
     setSelectedActivity(activity);
@@ -546,7 +554,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.primary,
   },
   headerButton: {
-    padding: Spacing.sm,
+    padding: Spacing.md,
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
   },
   soundsGrid: {
     flexDirection: "row",
