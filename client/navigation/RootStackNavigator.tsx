@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { Platform, Pressable, StyleSheet } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Svg, { Line } from "react-native-svg";
 import MainTabNavigator from "@/navigation/MainTabNavigator";
@@ -52,13 +52,14 @@ export default function RootStackNavigator() {
         component={AddTimerScreen}
         options={({ navigation }) => ({
           presentation: "fullScreenModal",
+          headerShown: Platform.OS !== "android",
           headerTitle: "New Timer",
-          headerLeft: () => (
+          headerLeft: Platform.OS !== "android" ? () => (
             <CloseButton 
               onPress={() => navigation.goBack()} 
               color={theme.text} 
             />
-          ),
+          ) : undefined,
         })}
       />
       <Stack.Screen

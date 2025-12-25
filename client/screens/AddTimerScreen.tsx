@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, ScrollView, View, Pressable, Platform, TextInput, Image } from "react-native";
+import { StyleSheet, View, Pressable, Platform, TextInput, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -324,8 +324,25 @@ export default function AddTimerScreen() {
     previewSound(soundId, settings.hapticsEnabled);
   };
 
+  const handleClose = () => {
+    navigation.goBack();
+  };
+
   return (
     <ThemedView style={styles.container}>
+      {Platform.OS === "android" ? (
+        <View style={[styles.androidHeader, { paddingTop: insets.top }]}>
+          <Pressable
+            onPress={handleClose}
+            style={styles.androidCloseButton}
+            android_ripple={{ color: 'rgba(0,0,0,0.1)', borderless: true }}
+          >
+            <CloseIcon size={24} color={theme.text} />
+          </Pressable>
+          <ThemedText type="h2" style={styles.androidTitle}>New Timer</ThemedText>
+          <View style={styles.androidCloseButton} />
+        </View>
+      ) : null}
       <KeyboardAwareScrollViewCompat
         style={styles.scrollView}
         contentContainerStyle={[
@@ -555,5 +572,22 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
+  },
+  androidHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: Spacing.md,
+    paddingBottom: Spacing.md,
+  },
+  androidCloseButton: {
+    width: 48,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  androidTitle: {
+    flex: 1,
+    textAlign: "center",
   },
 });
