@@ -68,6 +68,8 @@ export interface Timer {
   createdAt: number;
   completedAt?: number;
   soundToneId?: SoundToneId;
+  endTime?: number;
+  notificationId?: string | null;
 }
 
 export interface HistoryEntry {

@@ -4,6 +4,7 @@ import * as Haptics from "expo-haptics";
 import { Timer, HistoryEntry, AppSettings, ActivityType, getActivityById, UserProgress, BADGES, Activity } from "./types";
 import { storage } from "./storage";
 import { playCompletionSound, stopCompletionSound } from "./sounds";
+import { scheduleTimerNotification, cancelTimerNotification, requestNotificationPermissions } from "./notifications";
 
 interface TimerContextType {
   timers: Timer[];
@@ -54,10 +55,39 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.remove();
   }, [timers]);
 
-  const handleAppStateChange = (nextAppState: AppStateStatus) => {
+  const handleAppStateChange = async (nextAppState: AppStateStatus) => {
     if (nextAppState === "active") {
-      loadData();
+      await reconcileTimersFromBackground();
     }
+  };
+
+  const reconcileTimersFromBackground = async () => {
+    const savedTimers = await storage.getTimers();
+    const now = Date.now();
+    
+    const reconciledTimers = savedTimers.map((timer) => {
+      if (!timer.isRunning || timer.isPaused || !timer.endTime) {
+        return timer;
+      }
+      
+      const remainingMs = timer.endTime - now;
+      if (remainingMs <= 0) {
+        handleTimerComplete(timer);
+        return { 
+          ...timer, 
+          remainingSeconds: 0, 
+          isRunning: false, 
+          completedAt: timer.endTime,
+          endTime: undefined,
+          notificationId: null 
+        };
+      }
+      
+      return { ...timer, remainingSeconds: Math.ceil(remainingMs / 1000) };
+    });
+    
+    setTimers(reconciledTimers);
+    await storage.saveTimers(reconciledTimers);
   };
 
   const loadData = async () => {
@@ -67,10 +97,38 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       storage.getProgress(),
       storage.getCustomActivities(),
     ]);
-    setTimers(savedTimers);
+    
+    const now = Date.now();
+    const reconciledTimers = savedTimers.map((timer) => {
+      if (!timer.isRunning || timer.isPaused || !timer.endTime) {
+        return timer;
+      }
+      
+      const remainingMs = timer.endTime - now;
+      if (remainingMs <= 0) {
+        handleTimerComplete(timer);
+        return { 
+          ...timer, 
+          remainingSeconds: 0, 
+          isRunning: false, 
+          completedAt: timer.endTime,
+          endTime: undefined,
+          notificationId: null 
+        };
+      }
+      
+      return { ...timer, remainingSeconds: Math.ceil(remainingMs / 1000) };
+    });
+    
+    setTimers(reconciledTimers);
     setSettings(savedSettings);
     setProgress(savedProgress);
     setCustomActivities(savedCustomActivities);
+    
+    if (JSON.stringify(reconciledTimers) !== JSON.stringify(savedTimers)) {
+      await storage.saveTimers(reconciledTimers);
+    }
+    
     setIsLoading(false);
   };
 
@@ -193,23 +251,29 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     setNewBadge(null);
   }, []);
 
-  const addTimer = useCallback((activityId: ActivityType, durationMinutes: number, customName?: string, soundToneId?: import("./types").SoundToneId) => {
+  const addTimer = useCallback(async (activityId: ActivityType, durationMinutes: number, customName?: string, soundToneId?: import("./types").SoundToneId) => {
     const activity = getActivityById(activityId);
     const customActivity = customActivities.find((a) => a.id === activityId);
     const name = customName || customActivity?.name || activity?.name || "Timer";
     const durationSeconds = durationMinutes * 60;
+    const now = Date.now();
     
     const newTimer: Timer = {
-      id: `timer_${Date.now()}`,
+      id: `timer_${now}`,
       activityId,
       activityName: name,
       durationSeconds,
       remainingSeconds: durationSeconds,
       isRunning: true,
       isPaused: false,
-      createdAt: Date.now(),
+      createdAt: now,
       soundToneId: soundToneId || settings.selectedSoundId,
+      endTime: now + (durationSeconds * 1000),
+      notificationId: null,
     };
+
+    const notificationId = await scheduleTimerNotification(newTimer);
+    newTimer.notificationId = notificationId;
 
     if (settings.hapticsEnabled && Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -220,10 +284,14 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       storage.saveTimers(updated);
       return updated;
     });
-  }, [settings.hapticsEnabled, customActivities]);
+  }, [settings.hapticsEnabled, customActivities, settings.selectedSoundId]);
 
-  const removeTimer = useCallback((id: string) => {
+  const removeTimer = useCallback(async (id: string) => {
     stopCompletionSound();
+    const timerToRemove = timers.find((t) => t.id === id);
+    if (timerToRemove?.notificationId) {
+      await cancelTimerNotification(timerToRemove.notificationId);
+    }
     if (settings.hapticsEnabled && Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -232,35 +300,70 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       storage.saveTimers(updated);
       return updated;
     });
-  }, [settings.hapticsEnabled]);
+  }, [settings.hapticsEnabled, timers]);
 
-  const toggleTimer = useCallback((id: string) => {
+  const toggleTimer = useCallback(async (id: string) => {
+    const timer = timers.find((t) => t.id === id);
+    if (!timer) return;
+
     if (settings.hapticsEnabled && Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    setTimers((prev) => {
-      const updated = prev.map((t) =>
-        t.id === id ? { ...t, isPaused: !t.isPaused } : t
-      );
-      storage.saveTimers(updated);
-      return updated;
-    });
-  }, [settings.hapticsEnabled]);
 
-  const resetTimer = useCallback((id: string) => {
+    if (timer.isPaused) {
+      const now = Date.now();
+      const newEndTime = now + (timer.remainingSeconds * 1000);
+      const notificationId = await scheduleTimerNotification({ ...timer, remainingSeconds: timer.remainingSeconds });
+      
+      setTimers((prev) => {
+        const updated = prev.map((t) =>
+          t.id === id ? { ...t, isPaused: false, endTime: newEndTime, notificationId } : t
+        );
+        storage.saveTimers(updated);
+        return updated;
+      });
+    } else {
+      if (timer.notificationId) {
+        await cancelTimerNotification(timer.notificationId);
+      }
+      
+      setTimers((prev) => {
+        const updated = prev.map((t) =>
+          t.id === id ? { ...t, isPaused: true, endTime: undefined, notificationId: null } : t
+        );
+        storage.saveTimers(updated);
+        return updated;
+      });
+    }
+  }, [settings.hapticsEnabled, timers]);
+
+  const resetTimer = useCallback(async (id: string) => {
+    const timer = timers.find((t) => t.id === id);
+    if (!timer) return;
+
+    if (timer.notificationId) {
+      await cancelTimerNotification(timer.notificationId);
+    }
+
     if (settings.hapticsEnabled && Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
+
+    const now = Date.now();
+    const newEndTime = now + (timer.durationSeconds * 1000);
+    const resetTimerData = { ...timer, remainingSeconds: timer.durationSeconds };
+    const notificationId = await scheduleTimerNotification(resetTimerData);
+
     setTimers((prev) => {
       const updated = prev.map((t) =>
         t.id === id
-          ? { ...t, remainingSeconds: t.durationSeconds, isRunning: true, isPaused: false, completedAt: undefined }
+          ? { ...t, remainingSeconds: t.durationSeconds, isRunning: true, isPaused: false, completedAt: undefined, endTime: newEndTime, notificationId }
           : t
       );
       storage.saveTimers(updated);
       return updated;
     });
-  }, [settings.hapticsEnabled]);
+  }, [settings.hapticsEnabled, timers]);
 
   const updateSettings = useCallback((newSettings: Partial<AppSettings>) => {
     setSettings((prev) => {
