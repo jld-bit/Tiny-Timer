@@ -1,35 +1,65 @@
-import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { Timer, getActivityById } from "./types";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+let Notifications: typeof import("expo-notifications") | null = null;
+let notificationsSupported = true;
+
+async function getNotifications() {
+  if (Notifications !== null) {
+    return notificationsSupported ? Notifications : null;
+  }
+  
+  if (Platform.OS === "web") {
+    notificationsSupported = false;
+    return null;
+  }
+  
+  try {
+    Notifications = await import("expo-notifications");
+    
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+    
+    return Notifications;
+  } catch (error) {
+    console.warn("Notifications not supported in this environment:", error);
+    notificationsSupported = false;
+    return null;
+  }
+}
 
 export async function requestNotificationPermissions(): Promise<boolean> {
-  if (Platform.OS === "web") {
+  const notifications = await getNotifications();
+  if (!notifications) {
     return false;
   }
 
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
+  try {
+    const { status: existingStatus } = await notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
 
-  if (existingStatus !== "granted") {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
+    if (existingStatus !== "granted") {
+      const { status } = await notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    return finalStatus === "granted";
+  } catch (error) {
+    console.warn("Failed to request notification permissions:", error);
+    return false;
   }
-
-  return finalStatus === "granted";
 }
 
 export async function scheduleTimerNotification(timer: Timer): Promise<string | null> {
-  if (Platform.OS === "web") {
+  const notifications = await getNotifications();
+  if (!notifications) {
     return null;
   }
 
@@ -42,16 +72,16 @@ export async function scheduleTimerNotification(timer: Timer): Promise<string | 
   const activityName = activity?.name || timer.activityName;
 
   try {
-    const notificationId = await Notifications.scheduleNotificationAsync({
+    const notificationId = await notifications.scheduleNotificationAsync({
       content: {
         title: "Timer Complete!",
         body: `Your ${activityName} timer is done!`,
         sound: true,
-        priority: Notifications.AndroidNotificationPriority.HIGH,
+        priority: notifications.AndroidNotificationPriority.HIGH,
         data: { timerId: timer.id },
       },
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        type: notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: timer.remainingSeconds,
       },
     });
@@ -63,24 +93,26 @@ export async function scheduleTimerNotification(timer: Timer): Promise<string | 
 }
 
 export async function cancelTimerNotification(notificationId: string): Promise<void> {
-  if (Platform.OS === "web") {
+  const notifications = await getNotifications();
+  if (!notifications) {
     return;
   }
 
   try {
-    await Notifications.cancelScheduledNotificationAsync(notificationId);
+    await notifications.cancelScheduledNotificationAsync(notificationId);
   } catch (error) {
     console.warn("Failed to cancel notification:", error);
   }
 }
 
 export async function cancelAllTimerNotifications(): Promise<void> {
-  if (Platform.OS === "web") {
+  const notifications = await getNotifications();
+  if (!notifications) {
     return;
   }
 
   try {
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    await notifications.cancelAllScheduledNotificationsAsync();
   } catch (error) {
     console.warn("Failed to cancel all notifications:", error);
   }
