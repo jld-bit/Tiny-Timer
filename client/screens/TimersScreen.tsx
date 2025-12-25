@@ -28,6 +28,10 @@ const activityImages: Record<string, any> = {
   cleanup: require("@/assets/activities/cleanup_activity_icon.png"),
   snack_time: require("@/assets/activities/snack_time_activity_icon.png"),
   reading: require("@/assets/activities/reading_time_activity_icon.png"),
+  exercise: require("@/assets/activities/exercise_activity_kid_icon.png"),
+  art: require("@/assets/activities/art_activity_kid_icon.png"),
+  quiet_time: require("@/assets/activities/quiet_time_activity_icon.png"),
+  music: require("@/assets/activities/music_activity_kid_icon.png"),
 };
 
 export default function TimersScreen() {
