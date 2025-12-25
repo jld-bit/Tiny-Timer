@@ -43,24 +43,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   const [newBadge, setNewBadge] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    loadData();
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
-
   const appStateRef = useRef(AppState.currentState);
-  
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (appStateRef.current.match(/inactive|background/) && nextAppState === "active") {
-        reconcileTimersFromBackground();
-      }
-      appStateRef.current = nextAppState;
-    });
-    return () => subscription.remove();
-  }, []);
+  const lastActiveRef = useRef(Date.now());
 
   const reconcileTimersFromBackground = useCallback(async () => {
     const savedTimers = await storage.getTimers();
@@ -90,6 +74,34 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     setTimers(reconciledTimers);
     await storage.saveTimers(reconciledTimers);
   }, []);
+
+  useEffect(() => {
+    loadData();
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+  
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      const wasInactive = appStateRef.current.match(/inactive|background/);
+      const isNowActive = nextAppState === "active";
+      
+      if (wasInactive && isNowActive) {
+        const timeSinceActive = Date.now() - lastActiveRef.current;
+        if (timeSinceActive > 1000) {
+          reconcileTimersFromBackground();
+        }
+      }
+      
+      if (nextAppState === "active") {
+        lastActiveRef.current = Date.now();
+      }
+      
+      appStateRef.current = nextAppState;
+    });
+    return () => subscription.remove();
+  }, [reconcileTimersFromBackground]);
 
   const loadData = async () => {
     const [savedTimers, savedSettings, savedProgress, savedCustomActivities] = await Promise.all([
