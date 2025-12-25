@@ -3,7 +3,7 @@ import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
 import { SoundToneId } from "./types";
 
-const LOOP_DURATION_MS = 2 * 60 * 1000;
+const LOOP_DURATION_MS = 5 * 60 * 1000;
 
 let activeSound: Audio.Sound | null = null;
 let activeLoopTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -50,7 +50,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [523, 659, 784, 1047],
     durations: [0.15, 0.15, 0.15, 0.3],
     type: "sine",
-    volume: 0.3,
+    volume: 0.8,
     hapticCount: 4,
     hapticStyle: "medium",
   },
@@ -58,7 +58,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [440, 554, 659],
     durations: [0.2, 0.2, 0.4],
     type: "sine",
-    volume: 0.25,
+    volume: 0.75,
     hapticCount: 3,
     hapticStyle: "heavy",
   },
@@ -66,7 +66,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [587, 659, 784, 880, 1047],
     durations: [0.1, 0.1, 0.1, 0.1, 0.2],
     type: "triangle",
-    volume: 0.35,
+    volume: 0.85,
     hapticCount: 5,
     hapticStyle: "light",
   },
@@ -74,7 +74,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [880, 1047, 1175, 1319],
     durations: [0.08, 0.08, 0.08, 0.2],
     type: "sine",
-    volume: 0.2,
+    volume: 0.7,
     hapticCount: 4,
     hapticStyle: "light",
   },
@@ -82,7 +82,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [523, 659, 784, 659, 784, 1047],
     durations: [0.1, 0.1, 0.1, 0.1, 0.1, 0.3],
     type: "square",
-    volume: 0.15,
+    volume: 0.6,
     hapticCount: 6,
     hapticStyle: "medium",
   },
@@ -90,7 +90,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [392, 440, 494],
     durations: [0.3, 0.3, 0.5],
     type: "sine",
-    volume: 0.2,
+    volume: 0.65,
     hapticCount: 2,
     hapticStyle: "light",
   },
@@ -98,7 +98,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [523, 784, 523, 784, 1047],
     durations: [0.08, 0.08, 0.08, 0.08, 0.2],
     type: "square",
-    volume: 0.12,
+    volume: 0.55,
     hapticCount: 5,
     hapticStyle: "light",
   },
@@ -106,7 +106,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [440, 554, 659, 880, 1175, 1397],
     durations: [0.1, 0.1, 0.1, 0.1, 0.1, 0.3],
     type: "sine",
-    volume: 0.25,
+    volume: 0.75,
     hapticCount: 6,
     hapticStyle: "medium",
   },
@@ -114,7 +114,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [147, 165, 185, 196, 220, 247, 262],
     durations: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.2],
     type: "triangle",
-    volume: 0.3,
+    volume: 0.8,
     hapticCount: 7,
     hapticStyle: "heavy",
   },
@@ -122,7 +122,7 @@ const TONE_CONFIGS: Record<SoundToneId, ToneConfig> = {
     frequencies: [392, 392, 523, 523, 659, 784],
     durations: [0.15, 0.15, 0.15, 0.15, 0.2, 0.4],
     type: "sawtooth",
-    volume: 0.15,
+    volume: 0.6,
     hapticCount: 6,
     hapticStyle: "heavy",
   },
