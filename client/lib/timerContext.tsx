@@ -50,18 +50,19 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const appStateRef = useRef(AppState.currentState);
+  
   useEffect(() => {
-    const subscription = AppState.addEventListener("change", handleAppStateChange);
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (appStateRef.current.match(/inactive|background/) && nextAppState === "active") {
+        reconcileTimersFromBackground();
+      }
+      appStateRef.current = nextAppState;
+    });
     return () => subscription.remove();
-  }, [timers]);
+  }, []);
 
-  const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-    if (nextAppState === "active") {
-      await reconcileTimersFromBackground();
-    }
-  };
-
-  const reconcileTimersFromBackground = async () => {
+  const reconcileTimersFromBackground = useCallback(async () => {
     const savedTimers = await storage.getTimers();
     const now = Date.now();
     
@@ -88,7 +89,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     
     setTimers(reconciledTimers);
     await storage.saveTimers(reconciledTimers);
-  };
+  }, []);
 
   const loadData = async () => {
     const [savedTimers, savedSettings, savedProgress, savedCustomActivities] = await Promise.all([
